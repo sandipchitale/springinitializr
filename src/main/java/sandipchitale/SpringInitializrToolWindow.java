@@ -4,6 +4,7 @@ import com.intellij.openapi.project.ex.ProjectManagerEx;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.jcef.JBCefBrowser;
 import com.intellij.ui.jcef.JBCefClient;
+import com.intellij.util.ui.components.BorderLayoutPanel;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
@@ -29,25 +30,39 @@ import java.nio.file.Paths;
 public class SpringInitializrToolWindow {
     private final JPanel contentToolWindow;
 
+    public SpringInitializrToolWindow()
+    {
+        this.contentToolWindow = new SimpleToolWindowPanel(true, true);
+        this.contentToolWindow.setPreferredSize(new Dimension(1080, 880));
+
+        BorderLayoutPanel progressBarWrapper = new BorderLayoutPanel(5, 5);
+        progressBarWrapper.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        contentToolWindow.add(progressBarWrapper, BorderLayout.NORTH);
+
+        JLabel progressBarLabel = new JLabel(" ");
+        progressBarWrapper.add(progressBarLabel, BorderLayout.SOUTH);
+
+        JProgressBar progressBar = new JProgressBar();
+        progressBar.setIndeterminate(false);
+        progressBarWrapper.add(progressBar, BorderLayout.NORTH);
+
+        JBCefBrowser browser = new JBCefBrowser("https://start.spring.io");
+        JBCefClient client = browser.getJBCefClient();
+        client.addDownloadHandler(new DownloadHandler(getContent(), progressBar, progressBarLabel), browser.getCefBrowser());
+        contentToolWindow.add(browser.getComponent(), BorderLayout.CENTER);
+    }
+
     public JComponent getContent()
     {
         return this.contentToolWindow;
     }
 
-    public SpringInitializrToolWindow()
-    {
-        this.contentToolWindow = new SimpleToolWindowPanel(true, true);
-        this.contentToolWindow.setPreferredSize(new Dimension(1080, 880));
-        JBCefBrowser browser = new JBCefBrowser("https://start.spring.io");
-        JBCefClient client = browser.getJBCefClient();
-        client.addDownloadHandler(new DownloadHandler(getContent()), browser.getCefBrowser());
-        contentToolWindow.add(browser.getComponent());
-    }
-
-    private record DownloadHandler(JComponent parent) implements CefDownloadHandler {
+    private record DownloadHandler(JComponent parent, JProgressBar progressBar, JLabel progressBarLabel) implements CefDownloadHandler {
         @Override
         public void onBeforeDownload(CefBrowser browser, CefDownloadItem downloadItem, String suggestedName, CefBeforeDownloadCallback callback) {
             parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            progressBar.setIndeterminate(true);
+            progressBarLabel.setText("Generating, downloading, extracting and opening " + suggestedName +" in IntelliJ.");
         }
 
         @Override
@@ -85,6 +100,8 @@ public class SpringInitializrToolWindow {
                         } catch (IOException ignored) {
                         }
                         parent.setCursor(null);
+                        progressBar.setIndeterminate(false);
+                        progressBarLabel.setText(" ");
                     }
                 });
             }
