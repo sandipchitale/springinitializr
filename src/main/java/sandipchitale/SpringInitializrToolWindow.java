@@ -40,11 +40,11 @@ public class SpringInitializrToolWindow {
         contentToolWindow.add(progressBarWrapper, BorderLayout.NORTH);
 
         JLabel progressBarLabel = new JLabel(" ");
-        progressBarWrapper.add(progressBarLabel, BorderLayout.SOUTH);
+        progressBarWrapper.add(progressBarLabel, BorderLayout.NORTH);
 
         JProgressBar progressBar = new JProgressBar();
         progressBar.setIndeterminate(false);
-        progressBarWrapper.add(progressBar, BorderLayout.NORTH);
+        progressBarWrapper.add(progressBar, BorderLayout.SOUTH);
 
         JBCefBrowser browser = new JBCefBrowser("https://start.spring.io");
         JBCefClient client = browser.getJBCefClient();
