@@ -39,15 +39,15 @@ public class SpringInitializrToolWindow {
         this.contentToolWindow = new SimpleToolWindowPanel(true, true);
         this.contentToolWindow.setPreferredSize(new Dimension(1080, 880));
 
-        JPanel progressBarWrapper = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        JPanel progressBarWrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         progressBarWrapper.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+
+        JLabel progressBarLabel = new JLabel(" ");
+        progressBarWrapper.add(progressBarLabel);
 
         JProgressBar progressBar = new JProgressBar();
         progressBar.setIndeterminate(false);
         progressBarWrapper.add(progressBar);
-
-        JLabel progressBarLabel = new JLabel(" ");
-        progressBarWrapper.add(progressBarLabel);
 
         JBCefBrowser browser = new JBCefBrowser("https://start.spring.io");
         JBCefClient client = browser.getJBCefClient();
