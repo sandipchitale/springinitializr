@@ -1,6 +1,11 @@
 package sandipchitale;
 
+import com.intellij.ide.plugins.PluginUtil;
+import com.intellij.notification.*;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ex.ProjectManagerEx;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.jcef.JBCefBrowser;
 import com.intellij.ui.jcef.JBCefClient;
@@ -16,6 +21,7 @@ import org.cef.callback.CefDownloadItem;
 import org.cef.callback.CefDownloadItemCallback;
 import org.cef.handler.CefDownloadHandler;
 import org.jdom.JDOMException;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,7 +36,7 @@ import java.nio.file.Paths;
 public class SpringInitializrToolWindow {
     private final JPanel contentToolWindow;
 
-    public SpringInitializrToolWindow()
+    public SpringInitializrToolWindow(Project project)
     {
         this.contentToolWindow = new SimpleToolWindowPanel(true, true);
         this.contentToolWindow.setPreferredSize(new Dimension(1080, 880));
@@ -48,7 +54,7 @@ public class SpringInitializrToolWindow {
 
         JBCefBrowser browser = new JBCefBrowser("https://start.spring.io");
         JBCefClient client = browser.getJBCefClient();
-        client.addDownloadHandler(new DownloadHandler(getContent(), progressBar, progressBarLabel), browser.getCefBrowser());
+        client.addDownloadHandler(new DownloadHandler(project, getContent(), progressBar, progressBarLabel), browser.getCefBrowser());
         contentToolWindow.add(browser.getComponent(), BorderLayout.CENTER);
     }
 
@@ -57,7 +63,8 @@ public class SpringInitializrToolWindow {
         return this.contentToolWindow;
     }
 
-    private record DownloadHandler(JComponent parent, JProgressBar progressBar, JLabel progressBarLabel) implements CefDownloadHandler {
+    private record DownloadHandler(Project project, JComponent parent, JProgressBar progressBar, JLabel progressBarLabel) implements CefDownloadHandler {
+
         @Override
         public void onBeforeDownload(CefBrowser browser, CefDownloadItem downloadItem, String suggestedName, CefBeforeDownloadCallback callback) {
             parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -79,16 +86,44 @@ public class SpringInitializrToolWindow {
                         if (option == JFileChooser.APPROVE_OPTION) {
                             File saveDirectory = saveDirectoryChooserDialog.getSelectedFile();
                             String suggestedFileNameSansExtension = suggestedFileName.replaceFirst("\\.zip", "");
-                            if (Paths.get(saveDirectory.getAbsolutePath(), suggestedFileNameSansExtension).toFile().exists()) {
-                                JOptionPane.showMessageDialog(parent
-                                        ,"Folder exists: " +Paths.get(saveDirectory.getAbsolutePath(), suggestedFileNameSansExtension)
-                                        ,"Folder exists"
-                                        ,JOptionPane.ERROR_MESSAGE
-                                );
+                            Path projectDirectoryPath = Paths.get(saveDirectory.getAbsolutePath(), suggestedFileNameSansExtension);
+                            File projectDirectory = projectDirectoryPath.toFile();
+                            String projectDirectoryString = projectDirectoryPath.toString();
+                            if (projectDirectory.exists()) {
+                                Notification notification = new Notification("springinitializrNotificationGroup",
+                                        "Folder exists",
+                                        String.format("Folder exists %s", projectDirectoryString),
+                                        NotificationType.ERROR);
+                                notification.addAction(new NotificationAction("Open in file explorer") {
+                                    @Override
+                                    public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
+                                        try {
+                                            Desktop.getDesktop().open(projectDirectory);
+                                        } catch (IOException ignored) {
+                                        }
+                                        notification.expire();
+                                    }
+                                });
+                                notification.notify(project);
                             } else {
                                 try {
                                     extractZip(fullPath, saveDirectory.getAbsolutePath());
-                                    ProjectManagerEx.getInstanceEx().loadAndOpenProject(Paths.get(saveDirectory.getAbsolutePath(), suggestedFileNameSansExtension).toString());
+                                    ProjectManagerEx.getInstanceEx().loadAndOpenProject(projectDirectoryString);
+                                    Notification notification = new Notification("springinitializrNotificationGroup",
+                                            "Project opened in intelliJ",
+                                            String.format("Project opened in intelliJ %s", projectDirectoryString),
+                                            NotificationType.INFORMATION);
+                                    notification.addAction(new NotificationAction("Open in file explorer") {
+                                        @Override
+                                        public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
+                                            try {
+                                                Desktop.getDesktop().open(projectDirectory);
+                                            } catch (IOException ignored) {
+                                            }
+                                            notification.expire();
+                                        }
+                                    });
+                                    notification.notify(project);
                                 } catch (IOException | ArchiveException | JDOMException ignored) {
                                 }
                             }

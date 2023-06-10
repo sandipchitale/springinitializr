@@ -38,5 +38,10 @@ generate, download and then open in IntelliJ IDE.
                 icon="sandipchitale.SpringInitializrIcons.ToolWindow"
                 secondary="true"
         />
+        <notificationGroup
+                id="springinitializrNotificationGroup"
+                toolWindowId="Spring Initializr"
+                displayType="BALLOON"
+        />
     </extensions>
 </idea-plugin>

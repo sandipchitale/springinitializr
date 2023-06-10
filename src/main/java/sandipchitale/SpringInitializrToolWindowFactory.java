@@ -12,7 +12,7 @@ public class SpringInitializrToolWindowFactory implements ToolWindowFactory, Dum
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow)
     {
-        SpringInitializrToolWindow springInitializrToolWindow = new SpringInitializrToolWindow();
+        SpringInitializrToolWindow springInitializrToolWindow = new SpringInitializrToolWindow(project);
         ContentFactory contentFactory = ContentFactory.getInstance();
         Content content = contentFactory.createContent(springInitializrToolWindow.getContent(), "", false);
         toolWindow.getContentManager().addContent(content);
