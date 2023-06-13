@@ -29,12 +29,15 @@ generate, download and then open in IntelliJ IDE.
     <idea-version since-build="202.0"/>
 
     <change-notes><![CDATA[
+<h2>New Features</h2>
+<ul>
+  <li>Remember last project directory.</li>
+</ul>
 <h2>Bug Fixes</h2>
 <ul>
   <li>Fixed typo in plugin description</li>
 </ul>
 ]]></change-notes>
-
 
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->

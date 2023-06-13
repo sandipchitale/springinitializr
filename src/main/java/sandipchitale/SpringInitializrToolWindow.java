@@ -35,6 +35,8 @@ import java.nio.file.Paths;
 public class SpringInitializrToolWindow {
     private final JPanel contentToolWindow;
 
+    private static File projectsDirectory;
+
     public SpringInitializrToolWindow(Project project)
     {
         this.contentToolWindow = new SimpleToolWindowPanel(true, true);
@@ -82,9 +84,13 @@ public class SpringInitializrToolWindow {
                         JFileChooser saveDirectoryChooserDialog = new JFileChooser();
                         saveDirectoryChooserDialog.setDialogTitle("Select directory to extract " + suggestedFileName + " and open in IntelliJ");
                         saveDirectoryChooserDialog.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                        if (projectsDirectory != null) {
+                            saveDirectoryChooserDialog.setCurrentDirectory(projectsDirectory);
+                        }
                         int option = saveDirectoryChooserDialog.showOpenDialog(parent);
                         if (option == JFileChooser.APPROVE_OPTION) {
                             File saveDirectory = saveDirectoryChooserDialog.getSelectedFile();
+                            projectsDirectory = saveDirectory;
                             String suggestedFileNameSansExtension = suggestedFileName.replaceFirst("\\.zip", "");
                             Path projectDirectoryPath = Paths.get(saveDirectory.getAbsolutePath(), suggestedFileNameSansExtension);
                             File projectDirectory = projectDirectoryPath.toFile();
