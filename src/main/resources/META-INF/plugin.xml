@@ -16,7 +16,7 @@
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-Use <a href="https://start.apring.io">Spring Initializr</a> inside a tool window.
+Use <a href="https://start.spring.io">Spring Initializr</a> inside a tool window.
 
 This plugin shows the Spring Initializr inside a tool window. You can configure the Springboot project,
 generate, download and then open in IntelliJ IDE.
@@ -27,6 +27,14 @@ generate, download and then open in IntelliJ IDE.
     <depends>com.intellij.modules.platform</depends>
 
     <idea-version since-build="202.0"/>
+
+    <change-notes><![CDATA[
+<h2>Bug Fixes</h2>
+<ul>
+  <li>Fixed typo in plugin description</li>
+</ul>
+]]></change-notes>
+
 
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
