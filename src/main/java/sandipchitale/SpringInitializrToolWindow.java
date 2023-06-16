@@ -37,7 +37,7 @@ public class SpringInitializrToolWindow {
     private final JPanel contentToolWindow;
 
     private static File projectsDirectory;
-    private JTextField locationField;
+    private final JTextField locationField;
 
     static {
         String userHome = System.getProperty("user.home");
