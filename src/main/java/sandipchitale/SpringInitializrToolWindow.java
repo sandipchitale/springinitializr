@@ -9,6 +9,7 @@ import com.intellij.openapi.project.ex.ProjectManagerEx;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.jcef.JBCefBrowser;
 import com.intellij.ui.jcef.JBCefClient;
+import com.intellij.util.ui.components.BorderLayoutPanel;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
@@ -36,11 +37,60 @@ public class SpringInitializrToolWindow {
     private final JPanel contentToolWindow;
 
     private static File projectsDirectory;
+    private JTextField locationField;
+
+    static {
+        String userHome = System.getProperty("user.home");
+        projectsDirectory = Paths.get(userHome, "IdeaProjects").toFile();
+    }
 
     public SpringInitializrToolWindow(Project project)
     {
         this.contentToolWindow = new SimpleToolWindowPanel(true, true);
         this.contentToolWindow.setPreferredSize(new Dimension(1080, 880));
+
+        JPanel locationPanel = new BorderLayoutPanel(5, 5);
+
+        JLabel locationLabel = new JLabel("Projects Location:");
+        locationLabel.setToolTipText("The location where the project (folder) will be extracted.");
+        locationPanel.add(locationLabel, BorderLayout.WEST);
+
+        locationField = new JTextField();
+        locationField.setEditable(false);
+        locationField.setText(projectsDirectory.getAbsolutePath());
+        locationPanel.add(locationField, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+
+        JButton browserButton = new JButton("Browse...");
+        browserButton.addActionListener((actionEvent) -> {
+            JFileChooser saveDirectoryChooserDialog = new JFileChooser();
+            saveDirectoryChooserDialog.setDialogTitle("Select project location");
+            saveDirectoryChooserDialog.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            if (projectsDirectory != null) {
+                saveDirectoryChooserDialog.setCurrentDirectory(projectsDirectory);
+            }
+            int option = saveDirectoryChooserDialog.showOpenDialog(getContent());
+            if (option == JFileChooser.APPROVE_OPTION) {
+                projectsDirectory =  saveDirectoryChooserDialog.getSelectedFile();
+                locationField.setText(projectsDirectory.getAbsolutePath());
+            }
+        });
+        buttonPanel.add(browserButton);
+
+        JButton exploreButton = new JButton("Explore...");
+        exploreButton.addActionListener((actionEvent) -> {
+            if (projectsDirectory.exists() && projectsDirectory.isDirectory()) {
+                try {
+                    Desktop.getDesktop().open(projectsDirectory);
+                } catch (IOException ignore) {
+                }
+            }
+        });
+
+        buttonPanel.add(exploreButton);
+
+        locationPanel.add(buttonPanel, BorderLayout.EAST);
 
         JPanel progressBarWrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         progressBarWrapper.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
@@ -56,6 +106,7 @@ public class SpringInitializrToolWindow {
         JBCefClient client = browser.getJBCefClient();
         client.addDownloadHandler(new DownloadHandler(project, getContent(), progressBar, progressBarLabel), browser.getCefBrowser());
 
+        contentToolWindow.add(locationPanel, BorderLayout.NORTH);
         contentToolWindow.add(browser.getComponent(), BorderLayout.CENTER);
         contentToolWindow.add(progressBarWrapper, BorderLayout.SOUTH);
     }
@@ -75,31 +126,45 @@ public class SpringInitializrToolWindow {
         }
 
         @Override
+        @SuppressWarnings("ResultOfMethodCallIgnored")
         public void onDownloadUpdated(CefBrowser browser, CefDownloadItem downloadItem, CefDownloadItemCallback callback) {
             if (downloadItem.isComplete()) {
                 String fullPath = downloadItem.getFullPath();
                 String suggestedFileName = downloadItem.getSuggestedFileName();
                 SwingUtilities.invokeLater(() -> {
                     try {
-                        JFileChooser saveDirectoryChooserDialog = new JFileChooser();
-                        saveDirectoryChooserDialog.setDialogTitle("Select directory to extract " + suggestedFileName + " and open in IntelliJ");
-                        saveDirectoryChooserDialog.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                        if (projectsDirectory != null) {
-                            saveDirectoryChooserDialog.setCurrentDirectory(projectsDirectory);
+                        if (!projectsDirectory.exists()) {
+                            // Ensure the directory exists
+                            projectsDirectory.mkdirs();
                         }
-                        int option = saveDirectoryChooserDialog.showOpenDialog(parent);
-                        if (option == JFileChooser.APPROVE_OPTION) {
-                            File saveDirectory = saveDirectoryChooserDialog.getSelectedFile();
-                            projectsDirectory = saveDirectory;
-                            String suggestedFileNameSansExtension = suggestedFileName.replaceFirst("\\.zip", "");
-                            Path projectDirectoryPath = Paths.get(saveDirectory.getAbsolutePath(), suggestedFileNameSansExtension);
-                            File projectDirectory = projectDirectoryPath.toFile();
-                            String projectDirectoryString = projectDirectoryPath.toString();
-                            if (projectDirectory.exists()) {
+                        String suggestedFileNameSansExtension = suggestedFileName.replaceFirst("\\.zip", "");
+                        Path projectDirectoryPath = Paths.get(projectsDirectory.getAbsolutePath(), suggestedFileNameSansExtension);
+                        File projectDirectory = projectDirectoryPath.toFile();
+                        String projectDirectoryString = projectDirectoryPath.toString();
+                        if (projectDirectory.exists()) {
+                            Notification notification = new Notification("springinitializrNotificationGroup",
+                                    "Folder exists",
+                                    String.format("Folder exists %s", projectDirectoryString),
+                                    NotificationType.ERROR);
+                            notification.addAction(new NotificationAction("Open in file explorer") {
+                                @Override
+                                public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
+                                    try {
+                                        Desktop.getDesktop().open(projectDirectory);
+                                    } catch (IOException ignored) {
+                                    }
+                                    notification.expire();
+                                }
+                            });
+                            notification.notify(project);
+                        } else {
+                            try {
+                                extractZip(fullPath, projectsDirectory.getAbsolutePath());
+                                ProjectManagerEx.getInstanceEx().loadAndOpenProject(projectDirectoryString);
                                 Notification notification = new Notification("springinitializrNotificationGroup",
-                                        "Folder exists",
-                                        String.format("Folder exists %s", projectDirectoryString),
-                                        NotificationType.ERROR);
+                                        "Project opened in intelliJ",
+                                        String.format("Project opened in intelliJ %s", projectDirectoryString),
+                                        NotificationType.INFORMATION);
                                 notification.addAction(new NotificationAction("Open in file explorer") {
                                     @Override
                                     public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
@@ -111,27 +176,7 @@ public class SpringInitializrToolWindow {
                                     }
                                 });
                                 notification.notify(project);
-                            } else {
-                                try {
-                                    extractZip(fullPath, saveDirectory.getAbsolutePath());
-                                    ProjectManagerEx.getInstanceEx().loadAndOpenProject(projectDirectoryString);
-                                    Notification notification = new Notification("springinitializrNotificationGroup",
-                                            "Project opened in intelliJ",
-                                            String.format("Project opened in intelliJ %s", projectDirectoryString),
-                                            NotificationType.INFORMATION);
-                                    notification.addAction(new NotificationAction("Open in file explorer") {
-                                        @Override
-                                        public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
-                                            try {
-                                                Desktop.getDesktop().open(projectDirectory);
-                                            } catch (IOException ignored) {
-                                            }
-                                            notification.expire();
-                                        }
-                                    });
-                                    notification.notify(project);
-                                } catch (IOException | ArchiveException | JDOMException ignored) {
-                                }
+                            } catch (IOException | ArchiveException | JDOMException ignored) {
                             }
                         }
                     } finally {
