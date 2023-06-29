@@ -37,6 +37,7 @@ generate, download and then open in IntelliJ IDE.
 </ul>
 <h2>Bug Fixes</h2>
 <ul>
+  <li>Fixed icon size</li>
   <li>Fixed typo in plugin description</li>
 </ul>
 ]]></change-notes>
