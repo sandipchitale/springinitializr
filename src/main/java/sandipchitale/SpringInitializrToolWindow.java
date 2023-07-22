@@ -123,6 +123,7 @@ public class SpringInitializrToolWindow {
             parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             progressBar.setIndeterminate(true);
             progressBarLabel.setText("Generating, downloading, extracting and opening " + suggestedName +" in IntelliJ.");
+            callback.Continue(downloadItem.getFullPath(), false);
         }
 
         @Override
