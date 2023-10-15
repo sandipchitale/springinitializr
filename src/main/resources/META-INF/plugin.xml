@@ -5,7 +5,7 @@
 
     <!-- Public plugin name should be written in Title Case.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
-    <name>Spring Initializr</name>
+    <name>Start Spring Boot Project</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
     <vendor
@@ -20,6 +20,10 @@ Use <a href="https://start.spring.io">Spring Initializr</a> inside a tool window
 
 This plugin shows the Spring Initializr inside a tool window. You can configure the Springboot project,
 generate, download and then open in IntelliJ IDE.
+<br/>
+<br/>
+<p>IMPORTANT: Renamed the plugin to avoid confusion with the
+<a href="https://plugins.jetbrains.com/plugin/10229-spring-initializr">Spring Initializr</a> plugin by JetBrains.</p>
   ]]></description>
 
     <!-- Product and plugin compatibility requirements.
@@ -31,7 +35,8 @@ generate, download and then open in IntelliJ IDE.
     <change-notes><![CDATA[
 <h2>New Features</h2>
 <ul>
-  <li>Specify projects location to avoid filechooser.</li>
+  <li>Renamed plugin to Start Spring Boot Project</li>
+  <li>Specify projects location to avoid file chooser.</li>
   <li>Allow opening projects location in file explorer.</li>
   <li>Remember last project directory.</li>
 </ul>
