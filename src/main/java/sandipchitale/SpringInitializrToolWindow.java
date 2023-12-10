@@ -4,6 +4,7 @@ import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ex.ProjectManagerEx;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
@@ -132,7 +133,7 @@ public class SpringInitializrToolWindow {
             if (downloadItem.isComplete()) {
                 String fullPath = downloadItem.getFullPath();
                 String suggestedFileName = downloadItem.getSuggestedFileName();
-                SwingUtilities.invokeLater(() -> {
+                ApplicationManager.getApplication().invokeLater(() -> {
                     try {
                         if (!projectsDirectory.exists()) {
                             // Ensure the directory exists
