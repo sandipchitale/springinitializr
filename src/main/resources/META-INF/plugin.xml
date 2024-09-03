@@ -35,10 +35,19 @@ generate, download and then open in IntelliJ IDE.
     <change-notes><![CDATA[
 <h2>New Features</h2>
 <ul>
+  <li>Added support for new project generator using <a href="https://start.spring.io">start.spring.io</a> </li>
+</ul>
+<h2>Features</h2>
+<ul>
   <li>Renamed plugin to Start Spring Boot Project</li>
   <li>Specify projects location to avoid file chooser.</li>
   <li>Allow opening projects location in file explorer.</li>
   <li>Remember last project directory.</li>
+</ul>
+<h2>Known Bugs</h2>
+<ul>
+  <li>The project name needs to be pasted in the last step of the wizard. (Awkward)</li>
+  <li>For Maven based project, due to a bug the initial <b>Load Maven Project</b> button does not work. You have to use <b>Add as Maven project</b> action from project context menu instead.</li>
 </ul>
 <h2>Bug Fixes</h2>
 <ul>
@@ -62,5 +71,9 @@ generate, download and then open in IntelliJ IDE.
                 toolWindowId="Spring Initializr"
                 displayType="BALLOON"
         />
+        <moduleBuilder
+                builderClass="sandipchitale.StartSpringIOModuleBuilder"
+                id="START_SPRING_IO_MODULE_BUILDER"
+                order="first"/>
     </extensions>
 </idea-plugin>
