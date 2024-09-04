@@ -9,7 +9,6 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.jcef.JBCefBrowser;
 import com.intellij.ui.jcef.JBCefClient;
-import com.intellij.util.ui.EmptyClipboardOwner;
 import org.cef.browser.CefBrowser;
 import org.cef.callback.CefBeforeDownloadCallback;
 import org.cef.callback.CefDownloadItem;
@@ -18,13 +17,11 @@ import org.cef.handler.CefDownloadHandler;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.datatransfer.StringSelection;
 
 public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
 
     private final StartSpringIOModuleBuilder moduleBuilder;
     private final WizardContext context;
-    private final Disposable parentDisposable;
 
     private SimpleToolWindowPanel contentToolWindow;
 
@@ -36,7 +33,6 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
     public StartSpringIOModuleWizardStep(StartSpringIOModuleBuilder moduleBuilder, WizardContext context, Disposable parentDisposable) {
         this.moduleBuilder = moduleBuilder;
         this.context = context;
-        this.parentDisposable = parentDisposable;
     }
 
     /** Update UI from ModuleBuilder and WizardContext */
@@ -46,14 +42,14 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
     @Override
     public JComponent getComponent() {
         contentToolWindow = new SimpleToolWindowPanel(true, true);
-        JPanel progressBarWrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        JPanel progressBarWrapper = new JPanel(new BorderLayout(10, 0));
         progressBarWrapper.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         progressBarLabel = new JLabel(" ");
-        progressBarWrapper.add(progressBarLabel);
+        progressBarWrapper.add(progressBarLabel, BorderLayout.WEST);
 
         progressBar = new JProgressBar();
-        progressBarWrapper.add(progressBar);
+        progressBarWrapper.add(progressBar, BorderLayout.EAST);
 
         JBCefBrowser browser = new JBCefBrowser("https://start.spring.io");
         JBCefClient client = browser.getJBCefClient();
@@ -91,8 +87,8 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
 
     private void _reset() {
         setDownloadCalled(false);
+        progressBarLabel.setText("<html>Configure project and then click <b>[ GENERATE Ctrl + ⏎ ]</b>");
         progressBar.setIndeterminate(false);
-        progressBarLabel.setText("Configure project and then click Generate to download project.");
     }
 
     private void setDownloadCalled(boolean downloadCalled) {
@@ -109,8 +105,8 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
         @Override
         public void onBeforeDownload(CefBrowser browser, CefDownloadItem downloadItem, String suggestedName, CefBeforeDownloadCallback callback) {
             parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            progressBar.setIndeterminate(true);
             progressBarLabel.setText("Generating, downloading project" + suggestedName + ".");
+            progressBar.setIndeterminate(true);
             callback.Continue(downloadItem.getFullPath(), false);
         }
 
@@ -124,8 +120,8 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
                 context.putUserData(StartSpringIOModuleBuilder.START_SPRING_IO_DOWNLOADED_ZIP_LOCATION, downloadItemLocation);
                 moduleBuilder.setProjectName(suggestedFileNameSansExtension);
                 parent.setCursor(Cursor.getDefaultCursor());
+                progressBarLabel.setText("Downloaded project at: " + downloadItemLocation + " . Click Next and make sure project name is " + suggestedFileNameSansExtension);
                 progressBar.setIndeterminate(false);
-                progressBarLabel.setText("Downloaded project at: " + downloadItemLocation + " . Click Next and made sure project name is " + suggestedFileNameSansExtension);
             }
         }
     }
