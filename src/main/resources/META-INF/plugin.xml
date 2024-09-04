@@ -46,7 +46,6 @@ generate, download and then open in IntelliJ IDE.
 </ul>
 <h2>Known Bugs</h2>
 <ul>
-  <li>The project name needs to be pasted in the last step of the wizard. (Awkward)</li>
   <li>For Maven based project, due to a bug the initial <b>Load Maven Project</b> button does not work. You have to use <b>Add as Maven project</b> action from project context menu instead.</li>
 </ul>
 <h2>Bug Fixes</h2>

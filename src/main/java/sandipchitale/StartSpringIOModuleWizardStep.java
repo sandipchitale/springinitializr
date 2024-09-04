@@ -57,7 +57,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
 
         JBCefBrowser browser = new JBCefBrowser("https://start.spring.io");
         JBCefClient client = browser.getJBCefClient();
-        client.addDownloadHandler(new DownloadHandler(this, context, contentToolWindow, progressBar, progressBarLabel), browser.getCefBrowser());
+        client.addDownloadHandler(new DownloadHandler(this, moduleBuilder, context, contentToolWindow, progressBar, progressBarLabel), browser.getCefBrowser());
 
         contentToolWindow.add(browser.getComponent(), BorderLayout.CENTER);
         contentToolWindow.add(progressBarWrapper, BorderLayout.SOUTH);
@@ -86,6 +86,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
 
     @Override
     public void _commit(boolean finishChosen) throws CommitStepException {
+        // Nothing to do here
     }
 
     private void _reset() {
@@ -99,6 +100,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
     }
     
     private record DownloadHandler(StartSpringIOModuleWizardStep startSpringIOModuleWizardStep,
+                                   StartSpringIOModuleBuilder moduleBuilder,
                                    WizardContext context,
                                    JComponent parent,
                                    JProgressBar progressBar,
@@ -120,10 +122,10 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
                 String suggestedFileName = downloadItem.getSuggestedFileName();
                 String suggestedFileNameSansExtension = suggestedFileName.replaceFirst("\\.zip", "");
                 context.putUserData(StartSpringIOModuleBuilder.START_SPRING_IO_DOWNLOADED_ZIP_LOCATION, downloadItemLocation);
-                parent.getToolkit().getSystemClipboard().setContents(new StringSelection(suggestedFileNameSansExtension), EmptyClipboardOwner.INSTANCE);
+                moduleBuilder.setProjectName(suggestedFileNameSansExtension);
                 parent.setCursor(Cursor.getDefaultCursor());
                 progressBar.setIndeterminate(false);
-                progressBarLabel.setText("Downloaded project at: " + downloadItemLocation + " . Click Next and paste project name in clipboard " + suggestedFileNameSansExtension);
+                progressBarLabel.setText("Downloaded project at: " + downloadItemLocation + " . Click Next and made sure project name is " + suggestedFileNameSansExtension);
             }
         }
     }

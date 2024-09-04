@@ -1,8 +1,6 @@
 package sandipchitale;
 
-import com.intellij.ide.util.projectWizard.ModuleBuilder;
-import com.intellij.ide.util.projectWizard.ModuleWizardStep;
-import com.intellij.ide.util.projectWizard.WizardContext;
+import com.intellij.ide.util.projectWizard.*;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.project.Project;
@@ -25,6 +23,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 public class StartSpringIOModuleBuilder extends ModuleBuilder {
     static final Key<String> START_SPRING_IO_DOWNLOADED_ZIP_LOCATION = Key.create("start.spring.io.downloaded.zip.path");
@@ -32,6 +31,7 @@ public class StartSpringIOModuleBuilder extends ModuleBuilder {
     private @NotNull ModifiableRootModel model;
 
     private WizardContext context;
+    private String projectName;
 
     public StartSpringIOModuleBuilder() {
     }
@@ -51,6 +51,19 @@ public class StartSpringIOModuleBuilder extends ModuleBuilder {
     public ModuleWizardStep getCustomOptionsStep(WizardContext context, Disposable parentDisposable) {
         this.context = context;
         return new StartSpringIOModuleWizardStep(this, context, parentDisposable);
+    }
+
+    void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    @Override
+    public @Nullable ModuleWizardStep modifySettingsStep(@NotNull SettingsStep settingsStep) {
+        if (projectName != null) {
+            // Force set Project Name to match the one entered in the start.spring.io UI Artifact Name field.
+            Objects.requireNonNull(settingsStep.getModuleNameLocationSettings()).setModuleName(projectName);
+        }
+        return super.modifySettingsStep(settingsStep);
     }
 
     @Override
