@@ -93,15 +93,15 @@ public class SpringInitializrToolWindow {
 
         locationPanel.add(buttonPanel, BorderLayout.EAST);
 
-        JPanel progressBarWrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        JPanel progressBarWrapper = new JPanel(new BorderLayout(10, 0));
         progressBarWrapper.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
-        JLabel progressBarLabel = new JLabel(" ");
-        progressBarWrapper.add(progressBarLabel);
+        JLabel progressBarLabel = new JLabel("<html>Configure project and then click <b>[ GENERATE Ctrl + ⏎ ]</b>");
+        progressBarWrapper.add(progressBarLabel, BorderLayout.WEST);
 
         JProgressBar progressBar = new JProgressBar();
         progressBar.setIndeterminate(false);
-        progressBarWrapper.add(progressBar);
+        progressBarWrapper.add(progressBar, BorderLayout.EAST);
 
         JBCefBrowser browser = new JBCefBrowser("https://start.spring.io");
         JBCefClient client = browser.getJBCefClient();
@@ -123,7 +123,7 @@ public class SpringInitializrToolWindow {
         public void onBeforeDownload(CefBrowser browser, CefDownloadItem downloadItem, String suggestedName, CefBeforeDownloadCallback callback) {
             parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             progressBar.setIndeterminate(true);
-            progressBarLabel.setText("Generating, downloading, extracting and opening " + suggestedName +" in IntelliJ.");
+            progressBarLabel.setText("Generating, downloading, extracting and opening " + suggestedName +" in the IDE.");
             callback.Continue(downloadItem.getFullPath(), false);
         }
 
@@ -164,7 +164,7 @@ public class SpringInitializrToolWindow {
                                 extractZip(fullPath, projectsDirectory.getAbsolutePath());
                                 ProjectManagerEx.getInstanceEx().loadAndOpenProject(projectDirectoryString);
                                 Notification notification = new Notification("springinitializrNotificationGroup",
-                                        "Project opened in intelliJ",
+                                        "Project opened in the IDE",
                                         String.format("Project opened in intelliJ %s", projectDirectoryString),
                                         NotificationType.INFORMATION);
                                 notification.addAction(new NotificationAction("Open in file explorer") {
@@ -187,9 +187,9 @@ public class SpringInitializrToolWindow {
                             Files.delete(Paths.get(fullPath));
                         } catch (IOException ignored) {
                         }
-                        parent.setCursor(null);
+                        parent.setCursor(Cursor.getDefaultCursor());
                         progressBar.setIndeterminate(false);
-                        progressBarLabel.setText(" ");
+                        progressBarLabel.setText("<html>Configure project and then click <b>[ GENERATE Ctrl + ⏎ ]</b>");
                     }
                 });
             }
