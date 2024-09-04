@@ -96,7 +96,7 @@ public class SpringInitializrToolWindow {
         JPanel progressBarWrapper = new JPanel(new BorderLayout(10, 0));
         progressBarWrapper.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
-        JLabel progressBarLabel = new JLabel("<html>Configure project and then click <b>[ GENERATE Ctrl + ⏎ ]</b>");
+        JLabel progressBarLabel = new JLabel("<html>Configure project and then click <b>[ GENERATE Ctrl + ⏎ ] button above.</b>");
         progressBarWrapper.add(progressBarLabel, BorderLayout.WEST);
 
         JProgressBar progressBar = new JProgressBar();
@@ -117,13 +117,15 @@ public class SpringInitializrToolWindow {
         return this.contentToolWindow;
     }
 
+
+
     private record DownloadHandler(Project project, JComponent parent, JProgressBar progressBar, JLabel progressBarLabel) implements CefDownloadHandler {
 
         @Override
         public void onBeforeDownload(CefBrowser browser, CefDownloadItem downloadItem, String suggestedName, CefBeforeDownloadCallback callback) {
             parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             progressBar.setIndeterminate(true);
-            progressBarLabel.setText("Generating, downloading, extracting and opening " + suggestedName +" in the IDE.");
+            progressBarLabel.setText("Generating, downloading, extracting and opening '" + suggestedName +"' in the IDE.");
             callback.Continue(downloadItem.getFullPath(), false);
         }
 
@@ -189,7 +191,7 @@ public class SpringInitializrToolWindow {
                         }
                         parent.setCursor(Cursor.getDefaultCursor());
                         progressBar.setIndeterminate(false);
-                        progressBarLabel.setText("<html>Configure project and then click <b>[ GENERATE Ctrl + ⏎ ]</b>");
+                        progressBarLabel.setText("<html>Configure project and then click <b>[ GENERATE Ctrl + ⏎ ] button above.</b>");
                     }
                 });
             }

@@ -29,6 +29,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
     private JProgressBar progressBar;
 
     private boolean downloadCalled;
+    private JBCefBrowser browser;
 
     public StartSpringIOModuleWizardStep(StartSpringIOModuleBuilder moduleBuilder, WizardContext context, Disposable parentDisposable) {
         this.moduleBuilder = moduleBuilder;
@@ -51,7 +52,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
         progressBar = new JProgressBar();
         progressBarWrapper.add(progressBar, BorderLayout.EAST);
 
-        JBCefBrowser browser = new JBCefBrowser("https://start.spring.io");
+        browser = new JBCefBrowser("https://start.spring.io");
         JBCefClient client = browser.getJBCefClient();
         client.addDownloadHandler(new DownloadHandler(this, moduleBuilder, context, contentToolWindow, progressBar, progressBarLabel), browser.getCefBrowser());
 
@@ -59,6 +60,11 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
         contentToolWindow.add(progressBarWrapper, BorderLayout.SOUTH);
 
         return contentToolWindow;
+    }
+
+    @Override
+    public JComponent getPreferredFocusedComponent() {
+        return browser.getComponent();
     }
 
     @Override
@@ -87,7 +93,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
 
     private void _reset() {
         setDownloadCalled(false);
-        progressBarLabel.setText("<html>Configure project and then click <b>[ GENERATE Ctrl + ⏎ ]</b>");
+        progressBarLabel.setText("<html>Configure project and then click <b>[ GENERATE Ctrl + ⏎ ]</b> button above.");
         progressBar.setIndeterminate(false);
     }
 
@@ -105,7 +111,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
         @Override
         public void onBeforeDownload(CefBrowser browser, CefDownloadItem downloadItem, String suggestedName, CefBeforeDownloadCallback callback) {
             parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            progressBarLabel.setText("Generating, downloading project" + suggestedName + ".");
+            progressBarLabel.setText("Generating and downloading project '" + suggestedName + "' zip.");
             progressBar.setIndeterminate(true);
             callback.Continue(downloadItem.getFullPath(), false);
         }
@@ -120,7 +126,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
                 context.putUserData(StartSpringIOModuleBuilder.START_SPRING_IO_DOWNLOADED_ZIP_LOCATION, downloadItemLocation);
                 moduleBuilder.setProjectName(suggestedFileNameSansExtension);
                 parent.setCursor(Cursor.getDefaultCursor());
-                progressBarLabel.setText("Downloaded project at: " + downloadItemLocation + " . Click Next and make sure project name is " + suggestedFileNameSansExtension);
+                progressBarLabel.setText("Downloaded project '\" + suggestedFileNameSansExtension + \"' zip to: '" + downloadItemLocation + "'. Click Next below.");
                 progressBar.setIndeterminate(false);
             }
         }
