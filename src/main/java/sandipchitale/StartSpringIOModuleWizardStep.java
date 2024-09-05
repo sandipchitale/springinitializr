@@ -100,7 +100,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
     private void setDownloadCalled(boolean downloadCalled) {
         this.downloadCalled = downloadCalled;
     }
-    
+
     private record DownloadHandler(StartSpringIOModuleWizardStep startSpringIOModuleWizardStep,
                                    StartSpringIOModuleBuilder moduleBuilder,
                                    WizardContext context,
