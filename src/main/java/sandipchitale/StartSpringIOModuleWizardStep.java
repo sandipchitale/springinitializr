@@ -17,6 +17,8 @@ import org.cef.handler.CefDownloadHandler;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
 
@@ -53,8 +55,22 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
         progressBarWrapper.add(progressBar, BorderLayout.EAST);
 
         browser = new JBCefBrowser("https://start.spring.io");
-        browser.setProperty(JBCefBrowser.Properties.FOCUS_ON_SHOW, Boolean.TRUE);
-        browser.setProperty(JBCefBrowser.Properties.FOCUS_ON_NAVIGATION, Boolean.TRUE);
+        browser.getComponent().addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                e.consume();
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                e.consume();
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+                e.consume();
+            }
+        });
         JBCefClient client = browser.getJBCefClient();
         client.addDownloadHandler(new DownloadHandler(this, moduleBuilder, context, contentToolWindow, progressBar, progressBarLabel), browser.getCefBrowser());
 
