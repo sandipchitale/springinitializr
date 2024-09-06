@@ -11,11 +11,7 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.jcef.JBCefBrowser;
 import com.intellij.ui.jcef.JBCefClient;
 import com.intellij.util.ui.components.BorderLayoutPanel;
-import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
-import org.apache.commons.io.IOUtils;
 import org.cef.browser.CefBrowser;
 import org.cef.callback.CefBeforeDownloadCallback;
 import org.cef.callback.CefDownloadItem;
@@ -28,8 +24,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -104,6 +98,8 @@ public class SpringInitializrToolWindow {
         progressBarWrapper.add(progressBar, BorderLayout.EAST);
 
         JBCefBrowser browser = new JBCefBrowser("https://start.spring.io");
+        browser.setProperty(JBCefBrowser.Properties.FOCUS_ON_SHOW, Boolean.TRUE);
+        browser.setProperty(JBCefBrowser.Properties.FOCUS_ON_NAVIGATION, Boolean.TRUE);
         JBCefClient client = browser.getJBCefClient();
         client.addDownloadHandler(new DownloadHandler(project, getContent(), progressBar, progressBarLabel), browser.getCefBrowser());
 
@@ -163,7 +159,7 @@ public class SpringInitializrToolWindow {
                             notification.notify(project);
                         } else {
                             try {
-                                extractZip(fullPath, projectsDirectory.getAbsolutePath());
+                                ZipUtils.extractZip(fullPath, projectsDirectory.getAbsolutePath());
                                 ProjectManagerEx.getInstanceEx().loadAndOpenProject(projectDirectoryString);
                                 Notification notification = new Notification("springinitializrNotificationGroup",
                                         "Project opened in the IDE",
@@ -194,32 +190,6 @@ public class SpringInitializrToolWindow {
                         progressBarLabel.setText("<html>Configure project and then click <b>[ GENERATE Ctrl + ⏎ ] button above.</b>");
                     }
                 });
-            }
-        }
-        @SuppressWarnings("ResultOfMethodCallIgnored")
-        private void extractZip(String zipFilePath, String extractDirectory) throws IOException, ArchiveException {
-            InputStream inputStream;
-            Path filePath = Paths.get(zipFilePath);
-            inputStream = Files.newInputStream(filePath);
-            ArchiveStreamFactory archiveStreamFactory = new ArchiveStreamFactory();
-            ArchiveInputStream archiveInputStream = archiveStreamFactory.createArchiveInputStream(ArchiveStreamFactory.ZIP, inputStream);
-            ArchiveEntry archiveEntry;
-            while ((archiveEntry = archiveInputStream.getNextEntry()) != null) {
-                Path path = Paths.get(extractDirectory, archiveEntry.getName());
-                File file = path.toFile();
-                if (archiveEntry.isDirectory()) {
-                    if (!file.isDirectory()) {
-                        file.mkdirs();
-                    }
-                } else {
-                    File parent = file.getParentFile();
-                    if (!parent.isDirectory()) {
-                        parent.mkdirs();
-                    }
-                    try (OutputStream outputStream = Files.newOutputStream(path)) {
-                        IOUtils.copy(archiveInputStream, outputStream);
-                    }
-                }
             }
         }
     }

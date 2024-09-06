@@ -53,6 +53,8 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
         progressBarWrapper.add(progressBar, BorderLayout.EAST);
 
         browser = new JBCefBrowser("https://start.spring.io");
+        browser.setProperty(JBCefBrowser.Properties.FOCUS_ON_SHOW, Boolean.TRUE);
+        browser.setProperty(JBCefBrowser.Properties.FOCUS_ON_NAVIGATION, Boolean.TRUE);
         JBCefClient client = browser.getJBCefClient();
         client.addDownloadHandler(new DownloadHandler(this, moduleBuilder, context, contentToolWindow, progressBar, progressBarLabel), browser.getCefBrowser());
 
