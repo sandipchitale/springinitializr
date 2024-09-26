@@ -111,7 +111,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
 
     private void _reset() {
         setDownloadCalled(false);
-        progressBarLabel.setText("<html>Configure project and then click <b>[ GENERATE Ctrl + ⏎ ]</b> button above.");
+        progressBarLabel.setText("<html>Configure project and then click <b>[ GENERATE CTRL + ⏎ ]</b> button above.");
         progressBar.setIndeterminate(false);
     }
 

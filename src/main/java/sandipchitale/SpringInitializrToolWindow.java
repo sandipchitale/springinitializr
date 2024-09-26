@@ -90,7 +90,7 @@ public class SpringInitializrToolWindow {
         JPanel progressBarWrapper = new JPanel(new BorderLayout(10, 0));
         progressBarWrapper.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
-        JLabel progressBarLabel = new JLabel("<html>Configure project and then click <b>[ GENERATE Ctrl + ⏎ ] button above.</b>");
+        JLabel progressBarLabel = new JLabel("<html>Configure project and then click <b>[ GENERATE CTRL + ⏎ ] button above.</b>");
         progressBarWrapper.add(progressBarLabel, BorderLayout.WEST);
 
         JProgressBar progressBar = new JProgressBar();
@@ -187,7 +187,7 @@ public class SpringInitializrToolWindow {
                         }
                         parent.setCursor(Cursor.getDefaultCursor());
                         progressBar.setIndeterminate(false);
-                        progressBarLabel.setText("<html>Configure project and then click <b>[ GENERATE Ctrl + ⏎ ] button above.</b>");
+                        progressBarLabel.setText("<html>Configure project and then click <b>[ GENERATE CTRL + ⏎ ] button above.</b>");
                     }
                 });
             }
