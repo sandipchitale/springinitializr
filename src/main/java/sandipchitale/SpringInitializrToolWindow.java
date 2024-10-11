@@ -1,5 +1,6 @@
 package sandipchitale;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationType;
@@ -29,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -97,8 +99,12 @@ public class SpringInitializrToolWindow {
         JPanel progressBarWrapper = new JPanel(new BorderLayout(10, 0));
         progressBarWrapper.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        JButton resetToDefaultValuesButton = new JButton(AllIcons.Actions.DeleteTagHover);
+        resetToDefaultValuesButton.setToolTipText("Reset to default values");
+        progressBarWrapper.add(resetToDefaultValuesButton, BorderLayout.WEST);
+
         JLabel progressBarLabel = new JLabel("<html>Configure project and then click <b>[ GENERATE CTRL + ⏎ ] button above.</b>");
-        progressBarWrapper.add(progressBarLabel, BorderLayout.WEST);
+        progressBarWrapper.add(progressBarLabel, BorderLayout.CENTER);
 
         JProgressBar progressBar = new JProgressBar();
         progressBar.setIndeterminate(false);
@@ -131,6 +137,10 @@ public class SpringInitializrToolWindow {
         contentToolWindow.add(locationPanel, BorderLayout.NORTH);
         contentToolWindow.add(browser.getComponent(), BorderLayout.CENTER);
         contentToolWindow.add(progressBarWrapper, BorderLayout.SOUTH);
+
+        resetToDefaultValuesButton.addActionListener((ActionEvent actionEvent) -> {
+            browser.loadURL(SpringInitializrConfig.reset());
+        });
     }
 
     public JComponent getContent() {

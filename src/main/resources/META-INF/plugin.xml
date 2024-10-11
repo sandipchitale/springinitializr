@@ -35,7 +35,7 @@ generate, download and then open in IntelliJ IDE.
     <change-notes><![CDATA[
 <h2>New Features</h2>
 <ul>
-    <li>Try to remember the configuration in the current session.</li>
+    <li>Remember the last used configuration for generating the project with ability to reset to default values.</li>
 </ul>
 <h2>Features</h2>
 <ul>

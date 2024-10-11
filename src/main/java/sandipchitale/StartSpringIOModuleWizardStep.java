@@ -1,5 +1,6 @@
 package sandipchitale;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.Disposable;
@@ -23,6 +24,7 @@ import org.cef.network.CefRequest;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Objects;
@@ -60,8 +62,12 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
         JPanel progressBarWrapper = new JPanel(new BorderLayout(10, 0));
         progressBarWrapper.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        JButton resetToDefaultValuesButton = new JButton(AllIcons.Actions.DeleteTagHover);
+        resetToDefaultValuesButton.setToolTipText("Reset to default values");
+        progressBarWrapper.add(resetToDefaultValuesButton, BorderLayout.WEST);
+
         progressBarLabel = new JLabel(" ");
-        progressBarWrapper.add(progressBarLabel, BorderLayout.WEST);
+        progressBarWrapper.add(progressBarLabel, BorderLayout.CENTER);
 
         progressBar = new JProgressBar();
         progressBarWrapper.add(progressBar, BorderLayout.EAST);
@@ -107,6 +113,10 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
 
         contentToolWindow.add(browser.getComponent(), BorderLayout.CENTER);
         contentToolWindow.add(progressBarWrapper, BorderLayout.SOUTH);
+
+        resetToDefaultValuesButton.addActionListener((ActionEvent actionEvent) -> {
+            browser.loadURL(SpringInitializrConfig.reset());
+        });
 
         return contentToolWindow;
     }
