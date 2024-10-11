@@ -10,8 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class SpringInitializrToolWindowFactory implements ToolWindowFactory, DumbAware {
     @Override
-    public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow)
-    {
+    public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         SpringInitializrToolWindow springInitializrToolWindow = new SpringInitializrToolWindow(project);
         ContentFactory contentFactory = ContentFactory.getInstance();
         Content content = contentFactory.createContent(springInitializrToolWindow.getContent(), "", false);
