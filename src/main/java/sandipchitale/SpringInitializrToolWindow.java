@@ -10,13 +10,20 @@ import com.intellij.openapi.project.ex.ProjectManagerEx;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.jcef.JBCefBrowser;
 import com.intellij.ui.jcef.JBCefClient;
+import com.intellij.util.Url;
+import com.intellij.util.Urls;
 import com.intellij.util.ui.components.BorderLayoutPanel;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.cef.browser.CefBrowser;
+import org.cef.browser.CefFrame;
 import org.cef.callback.CefBeforeDownloadCallback;
 import org.cef.callback.CefDownloadItem;
 import org.cef.callback.CefDownloadItemCallback;
 import org.cef.handler.CefDownloadHandler;
+import org.cef.handler.CefRequestHandlerAdapter;
+import org.cef.handler.CefResourceRequestHandler;
+import org.cef.misc.BoolRef;
+import org.cef.network.CefRequest;
 import org.jdom.JDOMException;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,6 +34,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 public class SpringInitializrToolWindow {
     private final JPanel contentToolWindow;
@@ -39,8 +47,7 @@ public class SpringInitializrToolWindow {
         projectsDirectory = Paths.get(userHome, "IdeaProjects").toFile();
     }
 
-    public SpringInitializrToolWindow(Project project)
-    {
+    public SpringInitializrToolWindow(Project project) {
         this.contentToolWindow = new SimpleToolWindowPanel(true, true);
         this.contentToolWindow.setPreferredSize(new Dimension(1080, 880));
 
@@ -67,7 +74,7 @@ public class SpringInitializrToolWindow {
             }
             int option = saveDirectoryChooserDialog.showOpenDialog(getContent());
             if (option == JFileChooser.APPROVE_OPTION) {
-                projectsDirectory =  saveDirectoryChooserDialog.getSelectedFile();
+                projectsDirectory = saveDirectoryChooserDialog.getSelectedFile();
                 locationField.setText(projectsDirectory.getAbsolutePath());
             }
         });
@@ -88,7 +95,7 @@ public class SpringInitializrToolWindow {
         locationPanel.add(buttonPanel, BorderLayout.EAST);
 
         JPanel progressBarWrapper = new JPanel(new BorderLayout(10, 0));
-        progressBarWrapper.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        progressBarWrapper.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JLabel progressBarLabel = new JLabel("<html>Configure project and then click <b>[ GENERATE CTRL + ⏎ ] button above.</b>");
         progressBarWrapper.add(progressBarLabel, BorderLayout.WEST);
@@ -97,31 +104,47 @@ public class SpringInitializrToolWindow {
         progressBar.setIndeterminate(false);
         progressBarWrapper.add(progressBar, BorderLayout.EAST);
 
-        JBCefBrowser browser = new JBCefBrowser("https://start.spring.io");
+        JBCefBrowser browser = new JBCefBrowser(SpringInitializrConfig.getSpringInitializrUrl());
         browser.setProperty(JBCefBrowser.Properties.FOCUS_ON_SHOW, Boolean.TRUE);
         browser.setProperty(JBCefBrowser.Properties.FOCUS_ON_NAVIGATION, Boolean.TRUE);
         JBCefClient client = browser.getJBCefClient();
         client.addDownloadHandler(new DownloadHandler(project, getContent(), progressBar, progressBarLabel), browser.getCefBrowser());
+        client.addRequestHandler(new CefRequestHandlerAdapter() {
+            @Override
+            public CefResourceRequestHandler getResourceRequestHandler(CefBrowser browser,
+                                                                       CefFrame frame,
+                                                                       CefRequest request,
+                                                                       boolean isNavigation,
+                                                                       boolean isDownload,
+                                                                       String requestInitiator,
+                                                                       BoolRef disableDefaultHandling) {
+                String urlString = request.getURL();
+                Url url = Urls.parseEncoded(urlString);
+                if (Objects.requireNonNull(url).getPath().equals("/starter.zip")) {
+                    url = Urls.parseEncoded(urlString.replace("/starter.zip?", "/#!"));
+                    SpringInitializrConfig.setSpringInitializrUrl(url.toString());
+                }
+                return null;
+            }
+        }, browser.getCefBrowser());
 
         contentToolWindow.add(locationPanel, BorderLayout.NORTH);
         contentToolWindow.add(browser.getComponent(), BorderLayout.CENTER);
         contentToolWindow.add(progressBarWrapper, BorderLayout.SOUTH);
     }
 
-    public JComponent getContent()
-    {
+    public JComponent getContent() {
         return this.contentToolWindow;
     }
 
-
-
-    private record DownloadHandler(Project project, JComponent parent, JProgressBar progressBar, JLabel progressBarLabel) implements CefDownloadHandler {
+    private record DownloadHandler(Project project, JComponent parent, JProgressBar progressBar,
+                                   JLabel progressBarLabel) implements CefDownloadHandler {
 
         @Override
         public void onBeforeDownload(CefBrowser browser, CefDownloadItem downloadItem, String suggestedName, CefBeforeDownloadCallback callback) {
             parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             progressBar.setIndeterminate(true);
-            progressBarLabel.setText("Generating, downloading, extracting and opening '" + suggestedName +"' in the IDE.");
+            progressBarLabel.setText("Generating, downloading, extracting and opening '" + suggestedName + "' in the IDE.");
             callback.Continue(downloadItem.getFullPath(), false);
         }
 

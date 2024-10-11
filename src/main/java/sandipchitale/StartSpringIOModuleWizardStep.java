@@ -2,28 +2,37 @@ package sandipchitale;
 
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.WizardContext;
-import com.intellij.ide.wizard.CommitStepException;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.jcef.JBCefBrowser;
 import com.intellij.ui.jcef.JBCefClient;
+import com.intellij.util.Url;
+import com.intellij.util.Urls;
 import org.cef.browser.CefBrowser;
+import org.cef.browser.CefFrame;
 import org.cef.callback.CefBeforeDownloadCallback;
 import org.cef.callback.CefDownloadItem;
 import org.cef.callback.CefDownloadItemCallback;
 import org.cef.handler.CefDownloadHandler;
+import org.cef.handler.CefRequestHandlerAdapter;
+import org.cef.handler.CefResourceRequestHandler;
+import org.cef.misc.BoolRef;
+import org.cef.network.CefRequest;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Objects;
 
 public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
+    private static final Logger LOG = Logger.getInstance(StartSpringIOModuleWizardStep.class);
 
     private final StartSpringIOModuleBuilder moduleBuilder;
     private final WizardContext context;
+    private final Disposable parentDisposable;
 
     private SimpleToolWindowPanel contentToolWindow;
 
@@ -36,9 +45,12 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
     public StartSpringIOModuleWizardStep(StartSpringIOModuleBuilder moduleBuilder, WizardContext context, Disposable parentDisposable) {
         this.moduleBuilder = moduleBuilder;
         this.context = context;
+        this.parentDisposable = parentDisposable;
     }
 
-    /** Update UI from ModuleBuilder and WizardContext */
+    /**
+     * Update UI from ModuleBuilder and WizardContext
+     */
     public void updateStep() {
     }
 
@@ -54,7 +66,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
         progressBar = new JProgressBar();
         progressBarWrapper.add(progressBar, BorderLayout.EAST);
 
-        browser = new JBCefBrowser("https://start.spring.io");
+        browser = new JBCefBrowser(SpringInitializrConfig.getSpringInitializrUrl());
         browser.getComponent().addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -74,6 +86,25 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
         JBCefClient client = browser.getJBCefClient();
         client.addDownloadHandler(new DownloadHandler(this, moduleBuilder, context, contentToolWindow, progressBar, progressBarLabel), browser.getCefBrowser());
 
+        client.addRequestHandler(new CefRequestHandlerAdapter() {
+            @Override
+            public CefResourceRequestHandler getResourceRequestHandler(CefBrowser browser,
+                                                                       CefFrame frame,
+                                                                       CefRequest request,
+                                                                       boolean isNavigation,
+                                                                       boolean isDownload,
+                                                                       String requestInitiator,
+                                                                       BoolRef disableDefaultHandling) {
+                String urlString = request.getURL();
+                Url url = Urls.parseEncoded(urlString);
+                if (Objects.requireNonNull(url).getPath().equals("/starter.zip")) {
+                    url = Urls.parseEncoded(urlString.replace("/starter.zip?", "/#!"));
+                    SpringInitializrConfig.setSpringInitializrUrl(url.toString());
+                }
+                return null;
+            }
+        }, browser.getCefBrowser());
+
         contentToolWindow.add(browser.getComponent(), BorderLayout.CENTER);
         contentToolWindow.add(progressBarWrapper, BorderLayout.SOUTH);
 
@@ -90,7 +121,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
         _reset();
     }
 
-    public boolean validate() throws ConfigurationException {
+    public boolean validate() {
         if (!downloadCalled) {
             Messages.showWarningDialog(contentToolWindow,
                     "You need to generate the project first! Click on Generate button on the start.spring.io page.",
@@ -105,7 +136,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
     }
 
     @Override
-    public void _commit(boolean finishChosen) throws CommitStepException {
+    public void _commit(boolean finishChosen) {
         // Nothing to do here
     }
 
@@ -144,7 +175,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
                 context.putUserData(StartSpringIOModuleBuilder.START_SPRING_IO_DOWNLOADED_ZIP_LOCATION, downloadItemLocation);
                 moduleBuilder.setProjectName(suggestedFileNameSansExtension);
                 parent.setCursor(Cursor.getDefaultCursor());
-                progressBarLabel.setText("Downloaded project '\" + suggestedFileNameSansExtension + \"' zip to: '" + downloadItemLocation + "'. Click Next below.");
+                progressBarLabel.setText("Downloaded project '" + suggestedFileNameSansExtension + "' zip to: '" + downloadItemLocation + "'. Click Next below.");
                 progressBar.setIndeterminate(false);
             }
         }
