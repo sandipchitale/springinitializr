@@ -8,6 +8,8 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ex.ProjectManagerEx;
+import com.intellij.openapi.ui.ComboBox;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.jcef.JBCefBrowser;
 import com.intellij.ui.jcef.JBCefClient;
@@ -31,11 +33,14 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class SpringInitializrToolWindow {
@@ -99,9 +104,22 @@ public class SpringInitializrToolWindow {
         JPanel progressBarWrapper = new JPanel(new BorderLayout(10, 0));
         progressBarWrapper.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JButton resetToDefaultValuesButton = new JButton(AllIcons.Actions.DeleteTagHover);
-        resetToDefaultValuesButton.setToolTipText("Reset to default values");
-        progressBarWrapper.add(resetToDefaultValuesButton, BorderLayout.WEST);
+        JPanel savedConfigsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+
+        DefaultComboBoxModel<SpringInitializrConfig.SavedConfig> savedConfigsModel = new DefaultComboBoxModel<>() {};
+        List<SpringInitializrConfig.SavedConfig> springInitializrSavedConfigs = SpringInitializrConfig.getSpringInitializrSavedConfigs();
+        savedConfigsModel.addAll(springInitializrSavedConfigs);
+        savedConfigsModel.setSelectedItem(springInitializrSavedConfigs.get(0));
+        ComboBox<SpringInitializrConfig.SavedConfig> savedConfigs = new ComboBox<>(savedConfigsModel);
+        savedConfigsPanel.add(savedConfigs);
+
+        JButton deleteSelectedSavedConfigButton = new JButton(AllIcons.Actions.DeleteTagHover);
+        deleteSelectedSavedConfigButton.setToolTipText("Delete saved config");
+        savedConfigsPanel.add(deleteSelectedSavedConfigButton);
+
+        savedConfigsPanel.add(new JLabel(" | "));
+
+        progressBarWrapper.add(savedConfigsPanel, BorderLayout.WEST);
 
         JLabel progressBarLabel = new JLabel("<html>Configure project and then click <b>[ GENERATE CTRL + ⏎ ] button above.</b>");
         progressBarWrapper.add(progressBarLabel, BorderLayout.CENTER);
@@ -110,7 +128,7 @@ public class SpringInitializrToolWindow {
         progressBar.setIndeterminate(false);
         progressBarWrapper.add(progressBar, BorderLayout.EAST);
 
-        JBCefBrowser browser = new JBCefBrowser(SpringInitializrConfig.getSpringInitializrUrl());
+        JBCefBrowser browser = new JBCefBrowser(SpringInitializrConfig.SPRINGINITIALIZR_URL_DEFAULT_VALUE);
         browser.setProperty(JBCefBrowser.Properties.FOCUS_ON_SHOW, Boolean.TRUE);
         browser.setProperty(JBCefBrowser.Properties.FOCUS_ON_NAVIGATION, Boolean.TRUE);
         JBCefClient client = browser.getJBCefClient();
@@ -128,7 +146,19 @@ public class SpringInitializrToolWindow {
                 Url url = Urls.parseEncoded(urlString);
                 if (Objects.requireNonNull(url).getPath().equals("/starter.zip")) {
                     url = Urls.parseEncoded(urlString.replace("/starter.zip?", "/#!"));
-                    SpringInitializrConfig.setSpringInitializrUrl(url.toString());
+                    String name = Arrays.stream(Objects.requireNonNull(Objects.requireNonNull(url).getParameters()).split("&"))
+                            .filter((String parameter) -> {
+                                String[] parameterParts = parameter.split("=");
+                                return (parameterParts[0].equals("name"));
+                            })
+                            .map((String nameParameter) -> nameParameter.split("=")[1])
+                            .findFirst().orElse(null);
+                    if (name != null) {
+                        SpringInitializrConfig.SavedConfig savedConfig = SpringInitializrConfig.setConfig(name, url.toString());
+                        savedConfigsModel.removeAllElements();
+                        savedConfigsModel.addAll(SpringInitializrConfig.getSpringInitializrSavedConfigs());
+                        savedConfigsModel.setSelectedItem(savedConfig);
+                    }
                 }
                 return null;
             }
@@ -138,9 +168,28 @@ public class SpringInitializrToolWindow {
         contentToolWindow.add(browser.getComponent(), BorderLayout.CENTER);
         contentToolWindow.add(progressBarWrapper, BorderLayout.SOUTH);
 
-        resetToDefaultValuesButton.addActionListener((ActionEvent actionEvent) -> {
-            browser.loadURL(SpringInitializrConfig.reset());
+        deleteSelectedSavedConfigButton.addActionListener((ActionEvent actionEvent) -> {
+            SpringInitializrConfig.SavedConfig selectedSavedConfig = (SpringInitializrConfig.SavedConfig) savedConfigs.getSelectedItem();
+            if (selectedSavedConfig.name().equals(SpringInitializrConfig.SPRINGINITIALIZR_NAME_DEFAULT_VALUE)) {
+                Messages.showWarningDialog(contentToolWindow,
+                        "Cannot delete : " + SpringInitializrConfig.SPRINGINITIALIZR_NAME_DEFAULT_VALUE,
+                        "Warning");
+                return;
+            }
+            SpringInitializrConfig.deleteSavedConfig(selectedSavedConfig.name());
+            savedConfigsModel.removeAllElements();
+            List<SpringInitializrConfig.SavedConfig> sisc = SpringInitializrConfig.getSpringInitializrSavedConfigs();
+            savedConfigsModel.addAll(sisc);
+            savedConfigsModel.setSelectedItem(sisc.get(0));
+
         });
+
+        savedConfigs.addItemListener((ItemEvent itemEvent) -> {
+            if (savedConfigs.getSelectedItem() != null) {
+                browser.loadURL(((SpringInitializrConfig.SavedConfig) savedConfigs.getSelectedItem()).url());
+            }
+        });
+
     }
 
     public JComponent getContent() {

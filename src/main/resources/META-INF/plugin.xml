@@ -35,11 +35,11 @@ generate, download and then open in IntelliJ IDE.
     <change-notes><![CDATA[
 <h2>New Features</h2>
 <ul>
-    <li>Remember the last used configuration for generating the project with ability to reset to default values.</li>
+    <li>Remember by project name, the configuration for generating the project with ability to delete saved, named configs.</li>
 </ul>
 <h2>Features</h2>
 <ul>
-  <li>Added support for new project generator using <a href="https://start.spring.io">start.spring.io</a> </li>
+  <li>Added support for new project generator using <a href="https://start.spring.io">start.spring.io</a></li>
   <li>Renamed plugin to Start Spring Boot Project</li>
   <li>Specify projects location to avoid file chooser.</li>
   <li>Allow opening projects location in file explorer.</li>

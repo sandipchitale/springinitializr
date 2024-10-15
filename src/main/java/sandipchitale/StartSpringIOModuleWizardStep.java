@@ -5,6 +5,7 @@ import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.jcef.JBCefBrowser;
@@ -25,8 +26,11 @@ import org.cef.network.CefRequest;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
@@ -56,15 +60,29 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
     public void updateStep() {
     }
 
+
     @Override
     public JComponent getComponent() {
         contentToolWindow = new SimpleToolWindowPanel(true, true);
         JPanel progressBarWrapper = new JPanel(new BorderLayout(10, 0));
         progressBarWrapper.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JButton resetToDefaultValuesButton = new JButton(AllIcons.Actions.DeleteTagHover);
-        resetToDefaultValuesButton.setToolTipText("Reset to default values");
-        progressBarWrapper.add(resetToDefaultValuesButton, BorderLayout.WEST);
+        JPanel savedConfigsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+
+        DefaultComboBoxModel<SpringInitializrConfig.SavedConfig> savedConfigsModel = new DefaultComboBoxModel<>() {};
+        List<SpringInitializrConfig.SavedConfig> springInitializrSavedConfigs = SpringInitializrConfig.getSpringInitializrSavedConfigs();
+        savedConfigsModel.addAll(springInitializrSavedConfigs);
+        savedConfigsModel.setSelectedItem(springInitializrSavedConfigs.get(0));
+        ComboBox<SpringInitializrConfig.SavedConfig> savedConfigs = new ComboBox<>(savedConfigsModel);
+        savedConfigsPanel.add(savedConfigs);
+
+        JButton deleteSelectedSavedConfigButton = new JButton(AllIcons.Actions.DeleteTagHover);
+        deleteSelectedSavedConfigButton.setToolTipText("Delete saved config");
+        savedConfigsPanel.add(deleteSelectedSavedConfigButton);
+
+        savedConfigsPanel.add(new JLabel(" | "));
+
+        progressBarWrapper.add(savedConfigsPanel, BorderLayout.WEST);
 
         progressBarLabel = new JLabel(" ");
         progressBarWrapper.add(progressBarLabel, BorderLayout.CENTER);
@@ -72,7 +90,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
         progressBar = new JProgressBar();
         progressBarWrapper.add(progressBar, BorderLayout.EAST);
 
-        browser = new JBCefBrowser(SpringInitializrConfig.getSpringInitializrUrl());
+        browser = new JBCefBrowser(((SpringInitializrConfig.SavedConfig) savedConfigsModel.getSelectedItem()).url());
         browser.getComponent().addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -105,7 +123,19 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
                 Url url = Urls.parseEncoded(urlString);
                 if (Objects.requireNonNull(url).getPath().equals("/starter.zip")) {
                     url = Urls.parseEncoded(urlString.replace("/starter.zip?", "/#!"));
-                    SpringInitializrConfig.setSpringInitializrUrl(url.toString());
+                    String name = Arrays.stream(Objects.requireNonNull(Objects.requireNonNull(url).getParameters()).split("&"))
+                            .filter((String parameter) -> {
+                                String[] parameterParts = parameter.split("=");
+                                return (parameterParts[0].equals("name"));
+                            })
+                            .map((String nameParameter) -> nameParameter.split("=")[1])
+                            .findFirst().orElse(null);
+                    if (name != null) {
+                        SpringInitializrConfig.SavedConfig savedConfig = SpringInitializrConfig.setConfig(name, url.toString());
+                        savedConfigsModel.removeAllElements();
+                        savedConfigsModel.addAll(SpringInitializrConfig.getSpringInitializrSavedConfigs());
+                        savedConfigsModel.setSelectedItem(savedConfig);
+                    }
                 }
                 return null;
             }
@@ -114,8 +144,26 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
         contentToolWindow.add(browser.getComponent(), BorderLayout.CENTER);
         contentToolWindow.add(progressBarWrapper, BorderLayout.SOUTH);
 
-        resetToDefaultValuesButton.addActionListener((ActionEvent actionEvent) -> {
-            browser.loadURL(SpringInitializrConfig.reset());
+        deleteSelectedSavedConfigButton.addActionListener((ActionEvent actionEvent) -> {
+            SpringInitializrConfig.SavedConfig selectedSavedConfig = (SpringInitializrConfig.SavedConfig) savedConfigs.getSelectedItem();
+            if (selectedSavedConfig.name().equals(SpringInitializrConfig.SPRINGINITIALIZR_NAME_DEFAULT_VALUE)) {
+                Messages.showWarningDialog(contentToolWindow,
+                        "Cannot delete : " + SpringInitializrConfig.SPRINGINITIALIZR_NAME_DEFAULT_VALUE,
+                        "Warning");
+                return;
+            }
+            SpringInitializrConfig.deleteSavedConfig(selectedSavedConfig.name());
+            savedConfigsModel.removeAllElements();
+            List<SpringInitializrConfig.SavedConfig> sisc = SpringInitializrConfig.getSpringInitializrSavedConfigs();
+            savedConfigsModel.addAll(sisc);
+            savedConfigsModel.setSelectedItem(sisc.get(0));
+
+        });
+
+        savedConfigs.addItemListener((ItemEvent itemEvent) -> {
+            if (savedConfigs.getSelectedItem() != null) {
+                browser.loadURL(((SpringInitializrConfig.SavedConfig) savedConfigs.getSelectedItem()).url());
+            }
         });
 
         return contentToolWindow;
