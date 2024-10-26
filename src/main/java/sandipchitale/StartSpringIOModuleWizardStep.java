@@ -60,10 +60,10 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
     public void updateStep() {
     }
 
-
     @Override
     public JComponent getComponent() {
         contentToolWindow = new SimpleToolWindowPanel(true, true);
+        this.contentToolWindow.setPreferredSize(new Dimension(1080, 200));
         JPanel progressBarWrapper = new JPanel(new BorderLayout(10, 0));
         progressBarWrapper.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -74,6 +74,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
         savedConfigsModel.addAll(springInitializrSavedConfigs);
         savedConfigsModel.setSelectedItem(springInitializrSavedConfigs.get(0));
         ComboBox<SpringInitializrConfig.SavedConfig> savedConfigs = new ComboBox<>(savedConfigsModel);
+        savedConfigs.setMinimumAndPreferredWidth(200);
         savedConfigsPanel.add(savedConfigs);
 
         JButton deleteSelectedSavedConfigButton = new JButton(AllIcons.Actions.DeleteTagHover);
@@ -90,7 +91,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
         progressBar = new JProgressBar();
         progressBarWrapper.add(progressBar, BorderLayout.EAST);
 
-        browser = new JBCefBrowser(((SpringInitializrConfig.SavedConfig) savedConfigsModel.getSelectedItem()).url());
+        browser = new JBCefBrowser(SpringInitializrConfig.SPRINGINITIALIZR_URL_PREFIX_DEFAULT_VALUE + ((SpringInitializrConfig.SavedConfig) savedConfigsModel.getSelectedItem()).url());
         browser.getComponent().addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -131,7 +132,8 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
                             .map((String nameParameter) -> nameParameter.split("=")[1])
                             .findFirst().orElse(null);
                     if (name != null) {
-                        SpringInitializrConfig.SavedConfig savedConfig = SpringInitializrConfig.setConfig(name, url.toString());
+                        SpringInitializrConfig.SavedConfig savedConfig = SpringInitializrConfig.setConfig(name,
+                                url.toString().replaceAll("^https?://[^/]+(.*)$", "$1").trim());
                         savedConfigsModel.removeAllElements();
                         savedConfigsModel.addAll(SpringInitializrConfig.getSpringInitializrSavedConfigs());
                         savedConfigsModel.setSelectedItem(savedConfig);
@@ -162,7 +164,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
 
         savedConfigs.addItemListener((ItemEvent itemEvent) -> {
             if (savedConfigs.getSelectedItem() != null) {
-                browser.loadURL(((SpringInitializrConfig.SavedConfig) savedConfigs.getSelectedItem()).url());
+                browser.loadURL(SpringInitializrConfig.SPRINGINITIALIZR_URL_PREFIX_DEFAULT_VALUE + ((SpringInitializrConfig.SavedConfig) savedConfigs.getSelectedItem()).url());
             }
         });
 

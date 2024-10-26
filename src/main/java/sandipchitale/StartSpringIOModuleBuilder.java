@@ -7,10 +7,8 @@ import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.util.Key;
 import org.apache.commons.compress.archivers.ArchiveException;
-import org.jdom.JDOMException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,8 +55,8 @@ public class StartSpringIOModuleBuilder extends ModuleBuilder {
         try {
             String downloadedZipPath = context.getUserData(START_SPRING_IO_DOWNLOADED_ZIP_LOCATION);
             ZipUtils.extractZip(downloadedZipPath, Path.of(path).getParent().toString());
-            return ProjectManager.getInstance().loadAndOpenProject(path);
-        } catch (IOException | ArchiveException | JDOMException e) {
+            return super.createProject(name, path);
+        } catch (IOException | ArchiveException e) {
             throw new RuntimeException(e);
         }
     }

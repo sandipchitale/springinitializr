@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 final class SpringInitializrConfig {
+    static final String SPRINGINITIALIZR_URL_PREFIX_DEFAULT_VALUE = "https://start.spring.io";
+
     static final String SPRINGINITIALIZR_NAME_DEFAULT_VALUE = "DEFAULT";
-    static final String SPRINGINITIALIZR_URL_DEFAULT_VALUE = "https://start.spring.io/";
+    static final String SPRINGINITIALIZR_URL_DEFAULT_VALUE = "/";
 
     record SavedConfig(String name, String url) {
         public String toString() {
@@ -19,7 +21,7 @@ final class SpringInitializrConfig {
         static SavedConfig of(String savedConfigAsString) {
             String[] savedConfigParts = savedConfigAsString.split("\\|");
             return new SavedConfig(savedConfigParts[0],
-                    savedConfigParts[1]);
+                    savedConfigParts[1].replaceAll("^https?://[^/]+(.*)$", "$1").trim());
         }
     }
 
@@ -64,6 +66,9 @@ final class SpringInitializrConfig {
     }
 
     static SavedConfig setConfig(String name, String url) {
+        if (url.trim().isEmpty()) {
+            url = SPRINGINITIALIZR_URL_DEFAULT_VALUE;
+        }
         List<SavedConfig> springInitializrSavedConfigs = getSpringInitializrSavedConfigs();
         springInitializrSavedConfigs = springInitializrSavedConfigs
                 .stream()
