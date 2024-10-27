@@ -18,6 +18,10 @@ final class SpringInitializrConfig {
             return name();
         }
 
+        public String fullUrl() {
+            return SPRINGINITIALIZR_URL_PREFIX_DEFAULT_VALUE + url();
+        }
+
         static SavedConfig of(String savedConfigAsString) {
             String[] savedConfigParts = savedConfigAsString.split("\\|");
             return new SavedConfig(savedConfigParts[0],

@@ -35,7 +35,8 @@ generate, download and then open in IntelliJ IDE.
     <change-notes><![CDATA[
 <h2>New Features</h2>
 <ul>
-    <li>The legacy tool window now provides a button to invoke the standard 'New Project...' action. The tool window will be deprecated in near future.</li>
+  <li>Support opening selected config in desktop browser.</li>
+  <li>The legacy tool window now provides a button to invoke the standard 'New Project...' action. The tool window will be deprecated in near future.</li>
 </ul>
 <h2>Features</h2>
 <ul>

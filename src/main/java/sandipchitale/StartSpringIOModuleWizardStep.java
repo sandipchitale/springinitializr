@@ -73,9 +73,24 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
         List<SpringInitializrConfig.SavedConfig> springInitializrSavedConfigs = SpringInitializrConfig.getSpringInitializrSavedConfigs();
         savedConfigsModel.addAll(springInitializrSavedConfigs);
         savedConfigsModel.setSelectedItem(springInitializrSavedConfigs.get(0));
-        ComboBox<SpringInitializrConfig.SavedConfig> savedConfigs = new ComboBox<>(savedConfigsModel);
+        ComboBox<SpringInitializrConfig.SavedConfig> savedConfigs = new ComboBox<>(savedConfigsModel) {
+            @Override
+            public String getToolTipText() {
+                SpringInitializrConfig.SavedConfig selectedSavedConfig = (SpringInitializrConfig.SavedConfig) getSelectedItem();
+                return Objects.requireNonNull(selectedSavedConfig).fullUrl();
+            }
+        };
         savedConfigs.setMinimumAndPreferredWidth(200);
         savedConfigsPanel.add(savedConfigs);
+
+        JButton openInBrowserButton = new JButton(AllIcons.Actions.OpenNewTab);
+        openInBrowserButton.setToolTipText("Open in desktop browser");
+        savedConfigsPanel.add(openInBrowserButton);
+        openInBrowserButton.addActionListener((ActionEvent actionEvent) -> {
+            if (savedConfigs.getSelectedItem() instanceof SpringInitializrConfig.SavedConfig selectedSavedConfig) {
+                com.intellij.ide.BrowserUtil.browse(Objects.requireNonNull(selectedSavedConfig).fullUrl());
+            }
+        });
 
         JButton deleteSelectedSavedConfigButton = new JButton(AllIcons.Actions.DeleteTagHover);
         deleteSelectedSavedConfigButton.setToolTipText("Delete saved config");
