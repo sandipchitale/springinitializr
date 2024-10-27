@@ -1,8 +1,9 @@
 package sandipchitale;
 
+import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.ex.ActionUtil;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
@@ -25,12 +26,11 @@ public class SpringInitializrToolWindow {
         newProjectButton.addActionListener((ActionEvent actionEvent) -> {
             ApplicationManager.getApplication().invokeLater(() -> {
                 AnAction newProjectAction = ActionManager.getInstance().getAction("NewProject");
-                ActionUtil.invokeAction(newProjectAction,
-                        this.contentToolWindow,
-                        "Spring Initializr Tool Window",
+                AnActionEvent anActionEvent = AnActionEvent.createFromAnAction(newProjectAction,
                         null,
-                        () -> {
-                        });
+                        "Spring Initializr Tool Window",
+                        DataManager.getInstance().getDataContext(this.contentToolWindow));
+                newProjectAction.actionPerformed(anActionEvent);
             });
         });
         this.contentToolWindow.add(toolbar, BorderLayout.NORTH);
