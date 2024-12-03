@@ -25,12 +25,15 @@ public class SpringInitializrToolWindow {
         toolbar.add(newProjectButton);
         newProjectButton.addActionListener((ActionEvent actionEvent) -> {
             ApplicationManager.getApplication().invokeLater(() -> {
-                AnAction newProjectAction = ActionManager.getInstance().getAction("NewProject");
-                ActionUtil.invokeAction(newProjectAction,
-                        DataManager.getInstance().getDataContext(this.contentToolWindow),
-                        "Spring Initializr Tool Window",
-                        null,
-                        null);
+                ActionManager actionManager = ActionManager.getInstance();
+                AnAction newProjectAction = actionManager.getAction("NewProject");
+                actionManager.tryToExecute(
+                    newProjectAction,
+                    null,
+                    this.contentToolWindow,
+                    "Spring Initializr Tool Window",
+                    true
+                );
             });
         });
         this.contentToolWindow.add(toolbar, BorderLayout.NORTH);
