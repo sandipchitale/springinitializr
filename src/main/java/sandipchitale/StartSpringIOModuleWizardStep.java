@@ -252,6 +252,10 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
                 parent.setCursor(Cursor.getDefaultCursor());
                 progressBarLabel.setText("Downloaded project '" + suggestedFileNameSansExtension + "' zip to: '" + downloadItemLocation + "'. Click Next below.");
                 progressBar.setIndeterminate(false);
+            } else if (downloadItem.isCanceled()) {
+                parent.setCursor(Cursor.getDefaultCursor());
+                progressBarLabel.setText("Downloaded cancelled.");
+                progressBar.setIndeterminate(false);
             }
         }
     }

@@ -33,30 +33,38 @@ generate, download and then open in IntelliJ IDE.
     <idea-version since-build="202.0"/>
 
     <change-notes><![CDATA[
-<h2>New Features</h2>
-<ul>
-  <li>Support opening selected config in desktop browser.</li>
-  <li>The legacy tool window now provides a button to invoke the standard 'New Project...' action. The tool window will be deprecated in near future.</li>
-</ul>
-<h2>Features</h2>
-<ul>
-  <li>Remember by project name, the configuration for generating the project with ability to delete saved, named configs.</li>
-  <li>Added support for new project generator using <a href="https://start.spring.io">start.spring.io</a></li>
-  <li>Renamed plugin to Start Spring Boot Project</li>
-  <li>Specify projects location to avoid file chooser.</li>
-  <li>Allow opening projects location in file explorer.</li>
-  <li>Remember last project directory.</li>
-</ul>
-<h2>Known Bugs</h2>
-<ul>
-  <li>For Maven based project, due to a bug the initial <b>Load Maven Project</b> button does not work. You have to use <b>Add as Maven project</b> action from project context menu instead.</li>
-</ul>
-<h2>Bug Fixes</h2>
-<ul>
-  <li>Fixed icon size</li>
-  <li>Fixed typo in plugin description</li>
-</ul>
-]]></change-notes>
+        <h2>New Features</h2>
+        <ul>
+            <li>Configure and bookmark it using Bookmark button.</li>
+            <li>Load bookmarked configuration using ☆ button.</li>
+        </ul>
+        <h2>Features</h2>
+        <ul>
+            <li>Support opening selected config in desktop browser.</li>
+            <li>The legacy tool window now provides a button to invoke the standard 'New Project...' action. The tool
+                window will be deprecated in near future.
+            </li>
+            <li>Remember by project name, the configuration for generating the project with ability to delete saved,
+                named configs.
+            </li>
+            <li>Added support for new project generator using <a href="https://start.spring.io">start.spring.io</a></li>
+            <li>Renamed plugin to Start Spring Boot Project</li>
+            <li>Specify projects location to avoid file chooser.</li>
+            <li>Allow opening projects location in file explorer.</li>
+            <li>Remember last project directory.</li>
+        </ul>
+        <h2>Known Bugs</h2>
+        <ul>
+            <li>For Maven based project, due to a bug the initial <b>Load Maven Project</b> button does not work. You
+                have to use <b>Add as Maven project</b> action from project context menu instead.
+            </li>
+        </ul>
+        <h2>Bug Fixes</h2>
+        <ul>
+            <li>Fixed icon size</li>
+            <li>Fixed typo in plugin description</li>
+        </ul>
+        ]]></change-notes>
 
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
