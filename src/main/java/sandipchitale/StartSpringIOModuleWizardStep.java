@@ -1,11 +1,9 @@
 package sandipchitale;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.jcef.JBCefBrowser;
@@ -25,16 +23,14 @@ import org.cef.network.CefRequest;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
     private static final Logger LOG = Logger.getInstance(StartSpringIOModuleWizardStep.class);
+    static final String SPRINGINITIALIZR_URL_PREFIX_DEFAULT_VALUE = "https://start.spring.io";
 
     private final StartSpringIOModuleBuilder moduleBuilder;
     private final WizardContext context;
@@ -69,34 +65,9 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
 
         JPanel savedConfigsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
 
-        DefaultComboBoxModel<SpringInitializrConfig.SavedConfig> savedConfigsModel = new DefaultComboBoxModel<>() {};
-        List<SpringInitializrConfig.SavedConfig> springInitializrSavedConfigs = SpringInitializrConfig.getSpringInitializrSavedConfigs();
-        savedConfigsModel.addAll(springInitializrSavedConfigs);
-        savedConfigsModel.setSelectedItem(springInitializrSavedConfigs.get(0));
-        ComboBox<SpringInitializrConfig.SavedConfig> savedConfigs = new ComboBox<>(savedConfigsModel) {
-            @Override
-            public String getToolTipText() {
-                SpringInitializrConfig.SavedConfig selectedSavedConfig = (SpringInitializrConfig.SavedConfig) getSelectedItem();
-                return Objects.requireNonNull(selectedSavedConfig).fullUrl();
-            }
-        };
-        savedConfigs.setMinimumAndPreferredWidth(200);
-        savedConfigsPanel.add(savedConfigs);
-
-        JButton openInBrowserButton = new JButton(AllIcons.Actions.OpenNewTab);
-        openInBrowserButton.setToolTipText("Open in desktop browser");
-        savedConfigsPanel.add(openInBrowserButton);
-        openInBrowserButton.addActionListener((ActionEvent actionEvent) -> {
-            if (savedConfigs.getSelectedItem() instanceof SpringInitializrConfig.SavedConfig selectedSavedConfig) {
-                com.intellij.ide.BrowserUtil.browse(Objects.requireNonNull(selectedSavedConfig).fullUrl());
-            }
-        });
-
-        JButton deleteSelectedSavedConfigButton = new JButton(AllIcons.Actions.DeleteTagHover);
-        deleteSelectedSavedConfigButton.setToolTipText("Delete saved config");
-        savedConfigsPanel.add(deleteSelectedSavedConfigButton);
-
-        savedConfigsPanel.add(new JLabel(" | "));
+        JLabel bookmarksHintLabel = new JLabel("Use built-in bookmarks ( ☆ )");
+        bookmarksHintLabel.setToolTipText("Use built-in bookmarks to save ( ... > BOOKMARK ) and load configurations ( ☆ ).");
+        savedConfigsPanel.add(bookmarksHintLabel);
 
         progressBarWrapper.add(savedConfigsPanel, BorderLayout.WEST);
 
@@ -106,7 +77,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
         progressBar = new JProgressBar();
         progressBarWrapper.add(progressBar, BorderLayout.EAST);
 
-        browser = new JBCefBrowser(SpringInitializrConfig.SPRINGINITIALIZR_URL_PREFIX_DEFAULT_VALUE + ((SpringInitializrConfig.SavedConfig) savedConfigsModel.getSelectedItem()).url());
+        browser = new JBCefBrowser(SPRINGINITIALIZR_URL_PREFIX_DEFAULT_VALUE);
         browser.getComponent().addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -147,11 +118,6 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
                             .map((String nameParameter) -> nameParameter.split("=")[1])
                             .findFirst().orElse(null);
                     if (name != null) {
-                        SpringInitializrConfig.SavedConfig savedConfig = SpringInitializrConfig.setConfig(name,
-                                url.toString().replaceAll("^https?://[^/]+(.*)$", "$1").trim());
-                        savedConfigsModel.removeAllElements();
-                        savedConfigsModel.addAll(SpringInitializrConfig.getSpringInitializrSavedConfigs());
-                        savedConfigsModel.setSelectedItem(savedConfig);
                     }
                 }
                 return null;
@@ -160,28 +126,6 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
 
         contentToolWindow.add(browser.getComponent(), BorderLayout.CENTER);
         contentToolWindow.add(progressBarWrapper, BorderLayout.SOUTH);
-
-        deleteSelectedSavedConfigButton.addActionListener((ActionEvent actionEvent) -> {
-            SpringInitializrConfig.SavedConfig selectedSavedConfig = (SpringInitializrConfig.SavedConfig) savedConfigs.getSelectedItem();
-            if (selectedSavedConfig.name().equals(SpringInitializrConfig.SPRINGINITIALIZR_NAME_DEFAULT_VALUE)) {
-                Messages.showWarningDialog(contentToolWindow,
-                        "Cannot delete : " + SpringInitializrConfig.SPRINGINITIALIZR_NAME_DEFAULT_VALUE,
-                        "Warning");
-                return;
-            }
-            SpringInitializrConfig.deleteSavedConfig(selectedSavedConfig.name());
-            savedConfigsModel.removeAllElements();
-            List<SpringInitializrConfig.SavedConfig> sisc = SpringInitializrConfig.getSpringInitializrSavedConfigs();
-            savedConfigsModel.addAll(sisc);
-            savedConfigsModel.setSelectedItem(sisc.get(0));
-
-        });
-
-        savedConfigs.addItemListener((ItemEvent itemEvent) -> {
-            if (savedConfigs.getSelectedItem() != null) {
-                browser.loadURL(SpringInitializrConfig.SPRINGINITIALIZR_URL_PREFIX_DEFAULT_VALUE + ((SpringInitializrConfig.SavedConfig) savedConfigs.getSelectedItem()).url());
-            }
-        });
 
         return contentToolWindow;
     }
@@ -242,19 +186,20 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
 
         @Override
         public void onDownloadUpdated(CefBrowser browser, CefDownloadItem downloadItem, CefDownloadItemCallback callback) {
-            if (downloadItem.isComplete()) {
-                startSpringIOModuleWizardStep.setDownloadCalled(true);
-                String downloadItemLocation = downloadItem.getFullPath();
-                String suggestedFileName = downloadItem.getSuggestedFileName();
-                String suggestedFileNameSansExtension = suggestedFileName.replaceFirst("\\.zip", "");
-                context.putUserData(StartSpringIOModuleBuilder.START_SPRING_IO_DOWNLOADED_ZIP_LOCATION, downloadItemLocation);
-                moduleBuilder.setProjectName(suggestedFileNameSansExtension);
+            try {
+                if (downloadItem.isComplete()) {
+                    startSpringIOModuleWizardStep.setDownloadCalled(true);
+                    String downloadItemLocation = downloadItem.getFullPath();
+                    String suggestedFileName = downloadItem.getSuggestedFileName();
+                    String suggestedFileNameSansExtension = suggestedFileName.replaceFirst("\\.zip", "");
+                    context.putUserData(StartSpringIOModuleBuilder.START_SPRING_IO_DOWNLOADED_ZIP_LOCATION, downloadItemLocation);
+                    moduleBuilder.setProjectName(suggestedFileNameSansExtension);
+                    progressBarLabel.setText("Downloaded project '" + suggestedFileNameSansExtension + "' zip to: '" + downloadItemLocation + "'. Click Next below.");
+                } else if (downloadItem.isCanceled()) {
+                    progressBarLabel.setText("Downloaded cancelled.");
+                }
+            } finally {
                 parent.setCursor(Cursor.getDefaultCursor());
-                progressBarLabel.setText("Downloaded project '" + suggestedFileNameSansExtension + "' zip to: '" + downloadItemLocation + "'. Click Next below.");
-                progressBar.setIndeterminate(false);
-            } else if (downloadItem.isCanceled()) {
-                parent.setCursor(Cursor.getDefaultCursor());
-                progressBarLabel.setText("Downloaded cancelled.");
                 progressBar.setIndeterminate(false);
             }
         }

@@ -35,6 +35,7 @@ generate, download and then open in IntelliJ IDE.
     <change-notes><![CDATA[
         <h2>New Features</h2>
         <ul>
+            <li>HINT Label: Use native bookmark support ( ... > BOOKMARK ) and ☆ button.</li>
             <li>Configure and bookmark it using Bookmark button.</li>
             <li>Load bookmarked configuration using ☆ button.</li>
         </ul>
