@@ -35,9 +35,7 @@ generate, download and then open in IntelliJ IDE.
     <change-notes><![CDATA[
         <h2>New Features</h2>
         <ul>
-            <li>HINT Label: Use native bookmark support ( ... > BOOKMARK ) and ☆ button.</li>
-            <li>Configure and bookmark it using Bookmark button.</li>
-            <li>Load bookmarked configuration using ☆ button.</li>
+          <li>Remove the deprecated tool window.</li>
         </ul>
         <h2>Features</h2>
         <ul>
@@ -53,6 +51,9 @@ generate, download and then open in IntelliJ IDE.
             <li>Specify projects location to avoid file chooser.</li>
             <li>Allow opening projects location in file explorer.</li>
             <li>Remember last project directory.</li>
+            <li>HINT Label: Use native bookmark support ( ... > BOOKMARK ) and ☆ button.</li>
+            <li>Configure and bookmark the configuration using Bookmark button.</li>
+            <li>Load bookmarked configuration using ☆ button.</li>
         </ul>
         <h2>Known Bugs</h2>
         <ul>
@@ -70,18 +71,6 @@ generate, download and then open in IntelliJ IDE.
     <!-- Extension points defined by the plugin.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow
-                factoryClass="sandipchitale.SpringInitializrToolWindowFactory"
-                id="Spring Initializr"
-                anchor="bottom"
-                icon="sandipchitale.SpringInitializrIcons.ToolWindow"
-                secondary="true"
-        />
-        <notificationGroup
-                id="springinitializrNotificationGroup"
-                toolWindowId="Spring Initializr"
-                displayType="BALLOON"
-        />
         <moduleBuilder
                 builderClass="sandipchitale.StartSpringIOModuleBuilder"
                 id="START_SPRING_IO_MODULE_BUILDER"

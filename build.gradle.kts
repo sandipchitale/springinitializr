@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "sandipchitale"
-version = "1.0.37"
+version = "1.0.38"
 
 repositories {
     mavenCentral()
@@ -28,6 +28,12 @@ tasks {
     }
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions.jvmTarget = "17"
+    }
+
+    runIde {
+        if (project.hasProperty("runIde_ideDir")) {
+            ideDir = file("${project.extra["runIde_ideDir"]}")
+        }
     }
 
     patchPluginXml {
