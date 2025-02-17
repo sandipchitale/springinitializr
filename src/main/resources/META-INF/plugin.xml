@@ -16,7 +16,7 @@
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-Use <a href="https://start.spring.io">Spring Initializr</a> inside a tool window.
+Use <a href="https://start.spring.io">Spring Initializr</a> in the <b>New Project</b> wizard.
 
 This plugin integrates <b>start.spring.io</b> with the <b>New Project...</b> wizard. You can configure the Springboot project,
 generate, and then proceed to create and open the project in IntelliJ IDE.
