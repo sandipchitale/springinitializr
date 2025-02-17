@@ -18,8 +18,8 @@
     <description><![CDATA[
 Use <a href="https://start.spring.io">Spring Initializr</a> inside a tool window.
 
-This plugin shows the Spring Initializr inside a tool window. You can configure the Springboot project,
-generate, download and then open in IntelliJ IDE.
+This plugin integrates <b>start.spring.io</b> with the <b>New Project...</b> wizard. You can configure the Springboot project,
+generate, and then proceed to create and open the project in IntelliJ IDE.
 <br/>
 <br/>
 <p>IMPORTANT: Renamed the plugin to avoid confusion with the
