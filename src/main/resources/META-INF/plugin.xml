@@ -30,12 +30,12 @@ generate, and then proceed to create and open the project in IntelliJ IDE.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
 
-    <idea-version since-build="202.0"/>
+    <idea-version since-build="242"/>
 
     <change-notes><![CDATA[
         <h2>New Features</h2>
         <ul>
-          <li>Remove the deprecated tool window.</li>
+            <li>Update for 251</li>
         </ul>
         <h2>Features</h2>
         <ul>
@@ -54,6 +54,7 @@ generate, and then proceed to create and open the project in IntelliJ IDE.
             <li>HINT Label: Use native bookmark support ( ... > BOOKMARK ) and ☆ button.</li>
             <li>Configure and bookmark the configuration using Bookmark button.</li>
             <li>Load bookmarked configuration using ☆ button.</li>
+            <li>Remove the deprecated tool window.</li>
         </ul>
         <h2>Known Bugs</h2>
         <ul>
