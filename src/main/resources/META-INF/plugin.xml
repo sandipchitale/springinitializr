@@ -33,12 +33,17 @@ generate, and then proceed to create and open the project in IntelliJ IDE.
     <idea-version since-build="242"/>
 
     <change-notes><![CDATA[
+        <h2>Bug fix</h2>
+        <ul>
+            <li>Update for 251 stopped calling the JCEF download handler which broke the plugin. This has been fixed now.</li>
+        </ul>
         <h2>New Features</h2>
         <ul>
-            <li>Update for 251</li>
+            <li>Bug fix</li>
         </ul>
         <h2>Features</h2>
         <ul>
+            <li>Update for 251</li>
             <li>Support opening selected config in desktop browser.</li>
             <li>The legacy tool window now provides a button to invoke the standard 'New Project...' action. The tool
                 window will be deprecated in near future.

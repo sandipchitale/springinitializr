@@ -6,6 +6,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.ui.jcef.JBCefBrowser;
 import com.intellij.ui.jcef.JBCefClient;
 import com.intellij.util.Url;
@@ -25,6 +26,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -94,8 +103,8 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
                 e.consume();
             }
         });
+
         JBCefClient client = browser.getJBCefClient();
-        client.addDownloadHandler(new DownloadHandler(this, moduleBuilder, context, contentToolWindow, progressBar, progressBarLabel), browser.getCefBrowser());
 
         client.addRequestHandler(new CefRequestHandlerAdapter() {
             @Override
@@ -109,7 +118,6 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
                 String urlString = request.getURL();
                 Url url = Urls.parseEncoded(urlString);
                 if (Objects.requireNonNull(url).getPath().equals("/starter.zip")) {
-                    url = Urls.parseEncoded(urlString.replace("/starter.zip?", "/#!"));
                     String name = Arrays.stream(Objects.requireNonNull(Objects.requireNonNull(url).getParameters()).split("&"))
                             .filter((String parameter) -> {
                                 String[] parameterParts = parameter.split("=");
@@ -118,6 +126,43 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
                             .map((String nameParameter) -> nameParameter.split("=")[1])
                             .findFirst().orElse(null);
                     if (name != null) {
+                        contentToolWindow.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                        progressBarLabel.setText("Generating and downloading project '" + name + "' zip.");
+                        progressBar.setIndeterminate(true);
+                        SwingUtilities.invokeLater(() -> {
+                            try {
+                                File tempDir = Files.createTempDirectory("start.spring.io").toFile();
+                                File targetFile = new File(tempDir, String.format("%s.zip", name));
+
+                                // Download the file
+                                try {
+                                    URL downloadURL = new URL(urlString);
+                                    HttpURLConnection connection = (HttpURLConnection) downloadURL.openConnection();
+
+                                    try (InputStream inputStream = connection.getInputStream()) {
+                                        Files.copy(inputStream, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    } finally {
+                                        connection.disconnect();
+                                        setDownloadCalled(true);
+                                        String downloadItemLocation = targetFile.getAbsolutePath();
+                                        String suggestedFileName = targetFile.getName();
+                                        String suggestedFileNameSansExtension = suggestedFileName.replaceFirst("\\.zip", "");
+                                        context.putUserData(StartSpringIOModuleBuilder.START_SPRING_IO_DOWNLOADED_ZIP_LOCATION, downloadItemLocation);
+                                        moduleBuilder.setProjectName(suggestedFileNameSansExtension);
+                                        progressBarLabel.setText("Downloaded project '" + suggestedFileNameSansExtension + "' zip to: '" + downloadItemLocation + "'. Click Next below.");
+                                        contentToolWindow.setCursor(Cursor.getDefaultCursor());
+                                        progressBar.setIndeterminate(false);
+                                    }
+
+                                } catch (MalformedURLException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
                     }
                 }
                 return null;

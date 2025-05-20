@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "sandipchitale"
-version = "1.0.42"
+version = "1.0.43"
 
 repositories {
     mavenCentral()
@@ -17,10 +17,10 @@ repositories {
 
 dependencies {
     intellijPlatform {
-        if (project.hasProperty("runIde_ideDir")) {
+        if (project.hasProperty("runIde_ideDirX")) {
             local("${project.extra["runIde_ideDir"]}")
         } else {
-            intellijIdeaCommunity("2024.2")
+            intellijIdeaUltimate("2025.1")
         }
     }
 }
@@ -28,16 +28,16 @@ dependencies {
 tasks {
     // Set the JVM compatibility versions
     withType<JavaCompile> {
-        sourceCompatibility = "17"
-        targetCompatibility = "17"
+        sourceCompatibility = "21"
+        targetCompatibility = "21"
     }
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
+        kotlinOptions.jvmTarget = "21"
     }
 
     patchPluginXml {
-        sinceBuild.set("242")
-        untilBuild.set("251.*")
+        sinceBuild.set("251")
+        untilBuild.set("252.*")
     }
 
     signPlugin {
