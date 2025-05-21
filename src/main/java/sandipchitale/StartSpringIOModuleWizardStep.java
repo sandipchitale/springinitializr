@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -136,7 +138,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
 
                                 // Download the file
                                 try {
-                                    URL downloadURL = new URL(urlString);
+                                    URL downloadURL = new URI(urlString).toURL();
                                     HttpURLConnection connection = (HttpURLConnection) downloadURL.openConnection();
 
                                     try (InputStream inputStream = connection.getInputStream()) {
@@ -156,7 +158,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
                                         progressBar.setIndeterminate(false);
                                     }
 
-                                } catch (MalformedURLException e) {
+                                } catch (MalformedURLException | URISyntaxException e) {
                                     throw new RuntimeException(e);
                                 }
                             } catch (IOException e) {
