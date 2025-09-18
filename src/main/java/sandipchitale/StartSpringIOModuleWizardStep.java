@@ -6,7 +6,6 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.ui.jcef.JBCefBrowser;
 import com.intellij.ui.jcef.JBCefClient;
 import com.intellij.util.Url;
@@ -216,19 +215,37 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
         this.downloadCalled = downloadCalled;
     }
 
-    private record DownloadHandler(StartSpringIOModuleWizardStep startSpringIOModuleWizardStep,
-                                   StartSpringIOModuleBuilder moduleBuilder,
-                                   WizardContext context,
-                                   JComponent parent,
-                                   JProgressBar progressBar,
-                                   JLabel progressBarLabel) implements CefDownloadHandler {
+    private class DownloadHandler implements CefDownloadHandler {
+
+        private final StartSpringIOModuleWizardStep startSpringIOModuleWizardStep;
+        private final StartSpringIOModuleBuilder moduleBuilder;
+        private final WizardContext context;
+        private final JComponent parent;
+        private final JProgressBar progressBar;
+        private final JLabel progressBarLabel;
+
+        public DownloadHandler(StartSpringIOModuleWizardStep startSpringIOModuleWizardStep,
+                               StartSpringIOModuleBuilder moduleBuilder,
+                               WizardContext context,
+                               JComponent parent,
+                               JProgressBar progressBar,
+                               JLabel progressBarLabel) {
+            this.startSpringIOModuleWizardStep = startSpringIOModuleWizardStep;
+            this.moduleBuilder = moduleBuilder;
+            this.context = context;
+            this.parent = parent;
+            this.progressBar = progressBar;
+            this.progressBarLabel = progressBarLabel;
+        }
 
         @Override
-        public void onBeforeDownload(CefBrowser browser, CefDownloadItem downloadItem, String suggestedName, CefBeforeDownloadCallback callback) {
+        public boolean onBeforeDownload(CefBrowser browser, CefDownloadItem downloadItem,
+                                     String suggestedName, CefBeforeDownloadCallback callback) {
             parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             progressBarLabel.setText("Generating and downloading project '" + suggestedName + "' zip.");
             progressBar.setIndeterminate(true);
             callback.Continue(downloadItem.getFullPath(), false);
+            return true;
         }
 
         @Override
@@ -239,8 +256,8 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
                     String downloadItemLocation = downloadItem.getFullPath();
                     String suggestedFileName = downloadItem.getSuggestedFileName();
                     String suggestedFileNameSansExtension = suggestedFileName.replaceFirst("\\.zip", "");
-                    context.putUserData(StartSpringIOModuleBuilder.START_SPRING_IO_DOWNLOADED_ZIP_LOCATION, downloadItemLocation);
-                    moduleBuilder.setProjectName(suggestedFileNameSansExtension);
+                    StartSpringIOModuleWizardStep.this.context.putUserData(StartSpringIOModuleBuilder.START_SPRING_IO_DOWNLOADED_ZIP_LOCATION, downloadItemLocation);
+                    StartSpringIOModuleWizardStep.this.moduleBuilder.setProjectName(suggestedFileNameSansExtension);
                     progressBarLabel.setText("Downloaded project '" + suggestedFileNameSansExtension + "' zip to: '" + downloadItemLocation + "'. Click Next below.");
                 } else if (downloadItem.isCanceled()) {
                     progressBarLabel.setText("Downloaded cancelled.");

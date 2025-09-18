@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "sandipchitale"
-version = "1.0.45"
+version = "1.0.46"
 
 repositories {
     mavenCentral()
@@ -20,7 +20,7 @@ dependencies {
         if (project.hasProperty("runIde_ideDirX")) {
             local("${project.extra["runIde_ideDir"]}")
         } else {
-            intellijIdeaUltimate("2025.1")
+            intellijIdeaUltimate("253.17525.95")
         }
     }
 }
@@ -36,7 +36,7 @@ tasks {
     }
 
     patchPluginXml {
-        sinceBuild.set("251")
+        sinceBuild.set("253")
         untilBuild.set("253.*")
     }
 

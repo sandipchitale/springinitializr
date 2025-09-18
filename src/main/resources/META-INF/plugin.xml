@@ -30,7 +30,7 @@ generate, and then proceed to create and open the project in IntelliJ IDE.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
 
-    <idea-version since-build="242"/>
+    <idea-version since-build="253"/>
 
     <change-notes><![CDATA[
         <h2>Bug fix</h2>
