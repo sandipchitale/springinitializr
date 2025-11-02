@@ -63,7 +63,8 @@ generate, and then proceed to create and open the project in IntelliJ IDE.
         </ul>
         <h2>Known Bugs</h2>
         <ul>
-            <li>For Maven based project, due to a bug the initial <b>Load Maven Project</b> button does not work. You
+            <li>Currently, does not work in 2025.3 EAP version of IDEs because of a bug <a href="https://youtrack.jetbrains.com/issue/IJPL-215542">IJPL-215542</a>.</li>
+            <li>For Maven-based project, due to a bug the initial <b>Load Maven Project</b> button does not work. You
                 have to use <b>Add as Maven project</b> action from project context menu instead.
             </li>
         </ul>
