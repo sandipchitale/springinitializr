@@ -1,7 +1,7 @@
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.9.24"
-    id("org.jetbrains.intellij.platform") version "2.5.0"
+    id("org.jetbrains.kotlin.jvm") version "2.1.20"
+    id("org.jetbrains.intellij.platform") version "2.9.0"
 }
 
 group = "sandipchitale"
@@ -20,7 +20,7 @@ dependencies {
         if (project.hasProperty("runIde_ideDirX")) {
             local("${project.extra["runIde_ideDir"]}")
         } else {
-            intellijIdeaUltimate("253.17525.95")
+            intellijIdea("253.27864.23")
         }
     }
 }
