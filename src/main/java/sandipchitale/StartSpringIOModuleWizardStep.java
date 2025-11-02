@@ -10,6 +10,7 @@ import com.intellij.ui.jcef.JBCefBrowser;
 import com.intellij.ui.jcef.JBCefClient;
 import com.intellij.util.Url;
 import com.intellij.util.Urls;
+import com.intellij.util.ui.JBImageIcon;
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
 import org.cef.callback.CefBeforeDownloadCallback;
@@ -23,6 +24,7 @@ import org.cef.network.CefRequest;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -49,6 +51,8 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
     private SimpleToolWindowPanel contentToolWindow;
 
     private JLabel progressBarLabel;
+    private JButton openDownloadButton;
+
     private JProgressBar progressBar;
 
     private boolean downloadCalled;
@@ -73,16 +77,34 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
         JPanel progressBarWrapper = new JPanel(new BorderLayout(10, 0));
         progressBarWrapper.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JPanel savedConfigsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-
         JLabel bookmarksHintLabel = new JLabel("Use built-in bookmarks ( ☆ )");
         bookmarksHintLabel.setToolTipText("Use built-in bookmarks to save ( ... > BOOKMARK ) and load configurations ( ☆ ).");
-        savedConfigsPanel.add(bookmarksHintLabel);
 
-        progressBarWrapper.add(savedConfigsPanel, BorderLayout.WEST);
+        progressBarWrapper.add(bookmarksHintLabel, BorderLayout.WEST);
+
+        JPanel progressBarPanel = new JPanel(new BorderLayout(10, 0));
 
         progressBarLabel = new JLabel(" ");
-        progressBarWrapper.add(progressBarLabel, BorderLayout.CENTER);
+
+        progressBarPanel.add(progressBarLabel, BorderLayout.CENTER);
+
+        openDownloadButton = new JButton(UIManager.getIcon("Tree.openIcon"));
+        openDownloadButton.setEnabled(false);
+        openDownloadButton.addActionListener((ActionEvent e) -> {
+            String downloadItemLocation = context.getUserData(StartSpringIOModuleBuilder.START_SPRING_IO_DOWNLOADED_ZIP_LOCATION);
+            if (downloadItemLocation != null) {
+                File downloadItemLocationFile = new File(downloadItemLocation);
+                if (downloadItemLocationFile.isFile()) {
+                    try {
+                        Desktop.getDesktop().open(downloadItemLocationFile.getParentFile());
+                    } catch (IOException ignore) {
+                    }
+                }
+            }
+        });
+        progressBarPanel.add(openDownloadButton, BorderLayout.EAST);
+
+        progressBarWrapper.add(progressBarPanel, BorderLayout.CENTER);
 
         progressBar = new JProgressBar();
         progressBarWrapper.add(progressBar, BorderLayout.EAST);
@@ -130,6 +152,9 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
                         contentToolWindow.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                         progressBarLabel.setText("Generating and downloading project '" + name + "' zip.");
                         progressBar.setIndeterminate(true);
+                        openDownloadButton.setEnabled(false);
+                        openDownloadButton.setToolTipText("");
+                        context.putUserData(StartSpringIOModuleBuilder.START_SPRING_IO_DOWNLOADED_ZIP_LOCATION, null);
                         SwingUtilities.invokeLater(() -> {
                             try {
                                 File tempDir = Files.createTempDirectory("start.spring.io").toFile();
@@ -153,6 +178,8 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
                                         context.putUserData(StartSpringIOModuleBuilder.START_SPRING_IO_DOWNLOADED_ZIP_LOCATION, downloadItemLocation);
                                         moduleBuilder.setProjectName(suggestedFileNameSansExtension);
                                         progressBarLabel.setText("Downloaded project '" + suggestedFileNameSansExtension + "' zip to: '" + downloadItemLocation + "'. Click Next below.");
+                                        openDownloadButton.setEnabled(true);
+                                        openDownloadButton.setToolTipText("Open in file manager: " + downloadItemLocation);
                                         contentToolWindow.setCursor(Cursor.getDefaultCursor());
                                         progressBar.setIndeterminate(false);
                                     }
