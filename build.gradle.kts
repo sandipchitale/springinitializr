@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "sandipchitale"
-version = "1.0.49"
+version = "1.0.50"
 
 repositories {
     mavenCentral()
@@ -49,5 +49,13 @@ tasks {
 
     publishPlugin {
         token.set(System.getenv("PUBLISH_TOKEN"))
+    }
+
+    buildSearchableOptions {
+        enabled = false
+    }
+
+    jarSearchableOptions {
+        enabled = false
     }
 }
