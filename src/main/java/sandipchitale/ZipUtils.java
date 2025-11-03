@@ -21,7 +21,7 @@ class ZipUtils {
         Path filePath = Paths.get(zipFilePath);
         inputStream = Files.newInputStream(filePath);
         ArchiveStreamFactory archiveStreamFactory = new ArchiveStreamFactory();
-        ArchiveInputStream archiveInputStream = archiveStreamFactory.createArchiveInputStream(ArchiveStreamFactory.ZIP, inputStream);
+        ArchiveInputStream<? extends ArchiveEntry> archiveInputStream = archiveStreamFactory.createArchiveInputStream(ArchiveStreamFactory.ZIP, inputStream);
         ArchiveEntry archiveEntry;
         while ((archiveEntry = archiveInputStream.getNextEntry()) != null) {
             Path path = Paths.get(extractDirectory, archiveEntry.getName());

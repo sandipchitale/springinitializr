@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "2.1.20"
-    id("org.jetbrains.intellij.platform") version "2.9.0"
+    id("org.jetbrains.intellij.platform") version "2.10.4"
 }
 
 group = "sandipchitale"
@@ -19,11 +19,10 @@ repositories {
 
 dependencies {
     intellijPlatform {
-        if (project.hasProperty("runIde_ideDirX")) {
-            local("${project.extra["runIde_ideDir"]}")
-        } else {
-            intellijIdea("253.27864.23")
+        intellijIdea("253-EAP-SNAPSHOT") {
+            useInstaller = false
         }
+        testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
     }
 }
 
