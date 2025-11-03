@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "sandipchitale"
-version = "1.0.50"
+version = "1.0.51"
 
 repositories {
     mavenCentral()
@@ -24,6 +24,10 @@ dependencies {
         }
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
     }
+}
+
+intellijPlatform {
+    buildSearchableOptions = false
 }
 
 tasks {
@@ -49,13 +53,5 @@ tasks {
 
     publishPlugin {
         token.set(System.getenv("PUBLISH_TOKEN"))
-    }
-
-    buildSearchableOptions {
-        enabled = false
-    }
-
-    jarSearchableOptions {
-        enabled = false
     }
 }
