@@ -54,7 +54,10 @@ public class StartSpringIOModuleBuilder extends ModuleBuilder {
     public @Nullable Project createProject(String name, String path) {
         try {
             String downloadedZipPath = context.getUserData(START_SPRING_IO_DOWNLOADED_ZIP_LOCATION);
-            ZipUtils.extractZip(downloadedZipPath, Path.of(path).getParent().toString());
+            Path pathPath = Path.of(path);
+            Path pathPathParent = pathPath.getParent();
+            String projectDirName = pathPath.getFileName().toString();
+            ZipUtils.extractZip(downloadedZipPath, pathPathParent.toString(), projectDirName + "/");
             return super.createProject(name, path);
         } catch (IOException | ArchiveException e) {
             throw new RuntimeException(e);

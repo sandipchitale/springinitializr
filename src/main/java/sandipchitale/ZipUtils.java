@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 
 class ZipUtils {
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void extractZip(String zipFilePath, String extractDirectory) throws IOException, ArchiveException {
+    public static void extractZip(String zipFilePath, String extractDirectory, String projectDirName) throws IOException, ArchiveException {
         InputStream inputStream;
         Path filePath = Paths.get(zipFilePath);
         inputStream = Files.newInputStream(filePath);
@@ -24,7 +24,12 @@ class ZipUtils {
         ArchiveInputStream<? extends ArchiveEntry> archiveInputStream = archiveStreamFactory.createArchiveInputStream(ArchiveStreamFactory.ZIP, inputStream);
         ArchiveEntry archiveEntry;
         while ((archiveEntry = archiveInputStream.getNextEntry()) != null) {
-            Path path = Paths.get(extractDirectory, archiveEntry.getName());
+            String name = archiveEntry.getName();
+            if (!name.startsWith(projectDirName)) {
+                // adjust name
+                name = name.replaceFirst("^[^/]+/", projectDirName);
+            }
+            Path path = Paths.get(extractDirectory, name);
             File file = path.toFile();
             if (archiveEntry.isDirectory()) {
                 if (!file.isDirectory()) {
