@@ -5,6 +5,8 @@ import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.SettingsStep;
 import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.externalSystem.model.ExternalSystemDataKeys;
+import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsManagerImpl;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
@@ -58,7 +60,12 @@ public class StartSpringIOModuleBuilder extends ModuleBuilder {
             Path pathPathParent = pathPath.getParent();
             String projectDirName = pathPath.getFileName().toString();
             ZipUtils.extractZip(downloadedZipPath, pathPathParent.toString(), projectDirName + "/");
-            return super.createProject(name, path);
+            Project project = super.createProject(name, Path.of(path, name).toAbsolutePath().toString());
+            if (project != null) {
+                ExternalProjectsManagerImpl.setupCreatedProject(project);
+                project.putUserData(ExternalSystemDataKeys.NEWLY_CREATED_PROJECT, true);
+            }
+            return project;
         } catch (IOException | ArchiveException e) {
             throw new RuntimeException(e);
         }
