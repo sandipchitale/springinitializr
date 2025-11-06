@@ -61,10 +61,6 @@ public class StartSpringIOModuleBuilder extends ModuleBuilder {
             String projectDirName = pathPath.getFileName().toString();
             ZipUtils.extractZip(downloadedZipPath, pathPathParent.toString(), projectDirName + "/");
             Project project = super.createProject(name, Path.of(path, name).toAbsolutePath().toString());
-            if (project != null) {
-                ExternalProjectsManagerImpl.setupCreatedProject(project);
-                project.putUserData(ExternalSystemDataKeys.NEWLY_CREATED_PROJECT, true);
-            }
             return project;
         } catch (IOException | ArchiveException e) {
             throw new RuntimeException(e);
