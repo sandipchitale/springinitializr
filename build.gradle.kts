@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "sandipchitale"
-version = "1.0.54"
+version = "1.0.56"
 
 repositories {
     mavenCentral()
@@ -19,15 +19,27 @@ repositories {
 
 dependencies {
     intellijPlatform {
-        intellijIdea("253-EAP-SNAPSHOT") {
+        intellijIdeaUltimate("LATEST-EAP-SNAPSHOT") {
             useInstaller = false
+            useCache = true
         }
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
+
+        // Add plugin dependencies for compilation here, example:
+        bundledPlugin("com.intellij.gradle")
+        bundledPlugin("org.jetbrains.plugins.gradle")
+        bundledPlugin("org.jetbrains.idea.maven")
     }
 }
 
 intellijPlatform {
     buildSearchableOptions = false
+
+    pluginVerification {
+        ides {
+            recommended()
+        }
+    }
 }
 
 tasks {
@@ -42,7 +54,7 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("253")
-        untilBuild.set("253.*")
+        untilBuild.set("261.*")
     }
 
     signPlugin {
