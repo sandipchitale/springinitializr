@@ -13,12 +13,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.JavaSdk;
-import com.intellij.openapi.projectRoots.JavaSdkVersion;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.apache.commons.compress.archivers.ArchiveException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.gradle.settings.GradleProjectSettings;
@@ -85,10 +83,16 @@ public class StartSpringIOModuleBuilder extends ModuleBuilder {
                                 if (bestJavaSdk == null) {
                                     bestJavaSdk = sdk;
                                 } else {
-                                    JavaSdkVersion current = JavaSdk.getInstance().getVersion(sdk);
-                                    JavaSdkVersion best = JavaSdk.getInstance().getVersion(bestJavaSdk);
-                                    if (current != null && best != null && current.compareTo(best) > 0) {
-                                        bestJavaSdk = sdk;
+                                    String currentVersionStr = sdk.getVersionString();
+                                    String bestVersionStr = bestJavaSdk.getVersionString();
+                                    if (currentVersionStr != null && bestVersionStr != null) {
+                                        try {
+                                            if (Runtime.Version.parse(currentVersionStr).compareTo(Runtime.Version.parse(bestVersionStr)) > 0) {
+                                                bestJavaSdk = sdk;
+                                            }
+                                        } catch (IllegalArgumentException ignored) {
+                                            // Cannot compare versions, keep current best
+                                        }
                                     }
                                 }
                             }
@@ -130,7 +134,7 @@ public class StartSpringIOModuleBuilder extends ModuleBuilder {
             }
 
             return project;
-        } catch (IOException | ArchiveException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

@@ -141,16 +141,16 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
                 String urlString = request.getURL();
                 Url url = Urls.parseEncoded(urlString);
                 if (Objects.requireNonNull(url).getPath().equals("/starter.zip")) {
-                    String name = Arrays.stream(Objects.requireNonNull(Objects.requireNonNull(url).getParameters()).split("&"))
+                    String baseDir = Arrays.stream(Objects.requireNonNull(Objects.requireNonNull(url).getParameters()).replaceFirst("^\\?", "").split("&"))
                             .filter((String parameter) -> {
                                 String[] parameterParts = parameter.split("=");
-                                return (parameterParts[0].equals("name"));
+                                return (parameterParts[0].equals("baseDir"));
                             })
                             .map((String nameParameter) -> nameParameter.split("=")[1])
                             .findFirst().orElse(null);
-                    if (name != null) {
+                    if (baseDir != null) {
                         contentToolWindow.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                        progressBarLabel.setText("Generating and downloading project '" + name + "' zip.");
+                        progressBarLabel.setText("Generating and downloading project '" + baseDir + "' zip.");
                         progressBar.setIndeterminate(true);
                         openDownloadButton.setEnabled(false);
                         openDownloadButton.setToolTipText("");
@@ -158,7 +158,7 @@ public class StartSpringIOModuleWizardStep extends ModuleWizardStep {
                         SwingUtilities.invokeLater(() -> {
                             try {
                                 File tempDir = Files.createTempDirectory("start.spring.io").toFile();
-                                File targetFile = new File(tempDir, String.format("%s.zip", name));
+                                File targetFile = new File(tempDir, String.format("%s.zip", baseDir));
 
                                 // Download the file
                                 try {

@@ -3,11 +3,11 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "2.1.20"
-    id("org.jetbrains.intellij.platform") version "2.10.4"
+    id("org.jetbrains.intellij.platform") version "2.16.0"
 }
 
 group = "sandipchitale"
-version = "1.0.56"
+version = "1.0.57"
 
 repositories {
     mavenCentral()
@@ -26,6 +26,7 @@ dependencies {
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
 
         // Add plugin dependencies for compilation here, example:
+        bundledPlugin("com.intellij.java")
         bundledPlugin("com.intellij.gradle")
         bundledPlugin("org.jetbrains.plugins.gradle")
         bundledPlugin("org.jetbrains.idea.maven")
@@ -52,9 +53,13 @@ tasks {
         compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
     }
 
+    compileKotlin {
+        enabled = false
+    }
+
     patchPluginXml {
         sinceBuild.set("253")
-        untilBuild.set("261.*")
+        untilBuild.set("262.*")
     }
 
     signPlugin {
