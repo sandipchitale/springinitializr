@@ -30,11 +30,10 @@ generate, and then proceed to create and open the project in IntelliJ IDE.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
     <dependencies>
         <plugin id="com.intellij.modules.platform"/>
+        <plugin id="com.intellij.java"/>
         <plugin id="com.intellij.gradle"/>
         <plugin id="org.jetbrains.idea.maven"/>
     </dependencies>
-
-    <idea-version since-build="253"/>
 
     <change-notes><![CDATA[
         <h2>Bug fix</h2>

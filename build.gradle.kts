@@ -1,8 +1,5 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "2.1.20"
     id("org.jetbrains.intellij.platform") version "2.16.0"
 }
 
@@ -25,10 +22,8 @@ dependencies {
         }
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
 
-        // Add plugin dependencies for compilation here, example:
         bundledPlugin("com.intellij.java")
         bundledPlugin("com.intellij.gradle")
-        bundledPlugin("org.jetbrains.plugins.gradle")
         bundledPlugin("org.jetbrains.idea.maven")
     }
 }
@@ -43,18 +38,16 @@ intellijPlatform {
     }
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
 tasks {
-    // Set the JVM compatibility versions
     withType<JavaCompile> {
         sourceCompatibility = "21"
         targetCompatibility = "21"
-    }
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
-    }
-
-    compileKotlin {
-        enabled = false
+        options.release.set(21)
     }
 
     patchPluginXml {
@@ -69,6 +62,6 @@ tasks {
     }
 
     publishPlugin {
-        token.set(System.getenv("PUBLISH_TOKEN"))
+        token.set(providers.gradleProperty("intellijPublishToken"))
     }
 }
