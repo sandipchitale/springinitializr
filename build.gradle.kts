@@ -1,18 +1,12 @@
+import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask
+
 plugins {
     id("java")
-    id("org.jetbrains.intellij.platform") version "2.16.0"
+    id("org.jetbrains.intellij.platform")
 }
 
 group = "sandipchitale"
-version = "1.0.57"
-
-repositories {
-    mavenCentral()
-
-    intellijPlatform {
-        defaultRepositories()
-    }
-}
+version = "1.0.58"
 
 dependencies {
     intellijPlatform {
@@ -35,6 +29,10 @@ intellijPlatform {
         ides {
             recommended()
         }
+        failureLevel.set(listOf(
+            VerifyPluginTask.FailureLevel.COMPATIBILITY_PROBLEMS,
+            VerifyPluginTask.FailureLevel.INVALID_PLUGIN
+        ))
     }
 }
 

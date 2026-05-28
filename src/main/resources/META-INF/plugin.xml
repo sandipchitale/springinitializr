@@ -28,12 +28,10 @@ generate, and then proceed to create and open the project in IntelliJ IDE.
 
     <!-- Product and plugin compatibility requirements.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
-    <dependencies>
-        <plugin id="com.intellij.modules.platform"/>
-        <plugin id="com.intellij.java"/>
-        <plugin id="com.intellij.gradle"/>
-        <plugin id="org.jetbrains.idea.maven"/>
-    </dependencies>
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.java</depends>
+    <depends>com.intellij.gradle</depends>
+    <depends>org.jetbrains.idea.maven</depends>
 
     <change-notes><![CDATA[
         <h2>Bug fix</h2>
