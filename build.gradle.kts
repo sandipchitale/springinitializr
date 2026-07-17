@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "sandipchitale"
-version = "1.0.58"
+version = "1.0.60"
 
 dependencies {
     intellijPlatform {
@@ -19,6 +19,7 @@ dependencies {
         bundledPlugin("com.intellij.java")
         bundledPlugin("com.intellij.gradle")
         bundledPlugin("org.jetbrains.idea.maven")
+        bundledPlugin("com.intellij.modules.jcef")
     }
 }
 
@@ -49,7 +50,7 @@ tasks {
     }
 
     patchPluginXml {
-        sinceBuild.set("253")
+        sinceBuild.set("262")
         untilBuild.set("262.*")
     }
 

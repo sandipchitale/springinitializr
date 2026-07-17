@@ -28,10 +28,14 @@ generate, and then proceed to create and open the project in IntelliJ IDE.
 
     <!-- Product and plugin compatibility requirements.
          Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
-    <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.java</depends>
-    <depends>com.intellij.gradle</depends>
-    <depends>org.jetbrains.idea.maven</depends>
+    <dependencies>
+        <plugin id="com.intellij.java"/>
+        <plugin id="com.intellij.gradle"/>
+        <plugin id="org.jetbrains.idea.maven"/>
+        <plugin id="com.intellij.modules.jcef"/>
+        <module name="intellij.libraries.jcef"/>
+        <module name="intellij.platform.ui.jcef"/>
+    </dependencies>
 
     <change-notes><![CDATA[
         <h2>Bug fix</h2>
