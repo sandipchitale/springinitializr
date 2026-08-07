@@ -6,12 +6,12 @@ plugins {
 }
 
 group = "sandipchitale"
-version = "1.0.60"
+version = "1.0.61"
 
 dependencies {
     intellijPlatform {
-        intellijIdeaUltimate("LATEST-EAP-SNAPSHOT") {
-            useInstaller = false
+        intellijIdeaUltimate("2026.2.0.1") {
+            useInstaller = true
             useCache = true
         }
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
@@ -43,6 +43,14 @@ java {
 }
 
 tasks {
+    runIde {
+        // Without this, JCEF's own process sandbox fails to initialize when launched
+        // from the unpacked Gradle runIde distribution (not a signed .app bundle), so
+        // the start.spring.io browser never renders. Installed builds are unaffected,
+        // since they run from a properly signed IDE installation.
+        jvmArgs("-Dide.browser.jcef.sandbox.enable=false")
+    }
+
     withType<JavaCompile> {
         sourceCompatibility = "21"
         targetCompatibility = "21"
