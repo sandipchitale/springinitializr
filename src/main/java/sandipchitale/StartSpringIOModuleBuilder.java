@@ -19,6 +19,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.buildtool.MavenSyncSpec;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.plugins.gradle.settings.GradleProjectSettings;
 import org.jetbrains.plugins.gradle.settings.GradleSettings;
@@ -125,12 +126,12 @@ public class StartSpringIOModuleBuilder extends ModuleBuilder {
                                     MavenProjectsManager mavenProjectsManager = MavenProjectsManager.getInstance(project);
                                     mavenProjectsManager.addManagedFilesOrUnignore(java.util.List.of(pom));
                                     // Optionally trigger update
-                                    mavenProjectsManager.forceUpdateProjects();
+                                    mavenProjectsManager.scheduleUpdateAllMavenProjects(MavenSyncSpec.full("StartSpringIOModuleBuilder", true));
                                 }
                             }
                         }
                     }
-                }, ModalityState.NON_MODAL);
+                }, ModalityState.nonModal());
             }
 
             return project;

@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "sandipchitale"
-version = "1.0.61"
+version = "1.0.62"
 
 dependencies {
     intellijPlatform {
