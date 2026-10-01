@@ -22,6 +22,8 @@ This plugin integrates <b>start.spring.io</b> with the <b>New Project...</b> wiz
 generate, and then proceed to create and open the project in IntelliJ IDE.
 <br/>
 <br/>
+<p><b>Requires IntelliJ IDEA 2026.2+.</b> Older IDE versions can only install older plugin versions, where
+<b>Generate</b> no longer works because start.spring.io changed its download URL.</p>
 <p>IMPORTANT: Renamed the plugin to avoid confusion with the
 <a href="https://plugins.jetbrains.com/plugin/10229-spring-initializr">Spring Initializr</a> plugin by JetBrains.</p>
   ]]></description>
