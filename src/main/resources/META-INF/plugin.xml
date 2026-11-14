@@ -45,6 +45,7 @@ generate, and then proceed to create and open the project in IntelliJ IDE.
         </ul>
         <h2>New Features</h2>
         <ul>
+            <li>Extended compatibility to 263 builds (build 262 and 263.*).</li>
             <li>Add a button to open the parent folder of downloaded .zip file.</li>
         </ul>
         <h2>Features</h2>

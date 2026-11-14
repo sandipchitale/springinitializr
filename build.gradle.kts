@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "sandipchitale"
-version = "1.0.64"
+version = "1.0.65"
 
 dependencies {
     intellijPlatform {
@@ -59,7 +59,7 @@ tasks {
 
     patchPluginXml {
         sinceBuild.set("262")
-        untilBuild.set("262.*")
+        untilBuild.set("263.*")
     }
 
     signPlugin {
